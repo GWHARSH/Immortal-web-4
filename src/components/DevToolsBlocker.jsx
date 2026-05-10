@@ -389,16 +389,73 @@ export default function DevToolsBlocker() {
       } catch (_) {}
     }, 1500);
 
+    // ── Check for developer whitelist bypass ──
+    let hasBypass = false;
+    try {
+      if (window.location.search.includes('bypass=hixx_master_key')) {
+        localStorage.setItem('yamato_bypass', 'hixx_master_key');
+        console.log('⛩️ YAMATO Bypass Authorized!');
+      }
+      hasBypass = localStorage.getItem('yamato_bypass') === 'hixx_master_key';
+    } catch (_) {}
+
+    if (hasBypass) {
+      console.log('⛩️ YAMATO Security Protocol: Whitelisted developer bypass active.');
+      return;
+    }
+
     window.addEventListener('keydown', onKey, true);
     window.addEventListener('contextmenu', onContext, true);
     window.addEventListener('beforeprint', onBeforePrint);
     window.addEventListener('afterprint', onAfterPrint);
 
-    // ── Devtools size detection → warning screen & debugger trap ──
+    // ── Devtools size detection & passive debugger loop ──
     if (!inIframe) {
       let blocked = false;
       const THRESHOLD = 200;
       const isMobile = /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+      let sizeInterval = null;
+      let passiveInterval = null;
+
+      const triggerLockdown = () => {
+        if (blocked) return;
+        blocked = true;
+
+        clearInterval(sizeInterval);
+        clearInterval(consoleInterval);
+        clearInterval(passiveInterval);
+
+        const fp = Math.random().toString(36).substr(2, 16).toUpperCase();
+        document.body.innerHTML = `
+          <style>
+            *{margin:0;padding:0;box-sizing:border-box}
+            body{background:#020204;font-family:'Outfit',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;overflow:hidden}
+            .r{position:relative;z-index:2;text-align:center;padding:40px;max-width:600px}
+            .shield{width:70px;height:70px;margin:0 auto 24px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(244,114,182,0.08);border:1.5px solid rgba(244,114,182,0.2);animation:sp 2.5s ease-in-out infinite}
+            @keyframes sp{0%,100%{box-shadow:0 0 0 0 rgba(244,114,182,.25)}50%{box-shadow:0 0 0 18px rgba(244,114,182,0)}}
+            h1{font-size:2.4rem;font-weight:900;background:linear-gradient(135deg,#f472b6,#d946ef);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px}
+            p{color:#6a6a7a;font-size:.9rem;line-height:1.7;margin-bottom:20px}
+            .term{background:#0a0a0d;border:1px solid rgba(244,114,182,.1);border-radius:10px;padding:14px 18px;text-align:left;font-family:monospace;font-size:.72rem;color:#4a4a5a;line-height:1.9}
+            .h{color:#f472b6}.ok{color:#23a55a}
+          </style>
+          <div class="r">
+            <div class="shield">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f472b6" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <h1>ACCESS RESTRICTED</h1>
+            <p>Developer Tools detected. This website is protected by<br>the YAMATO Security Protocol. Close DevTools to continue.</p>
+            <div class="term">
+              <div>[YAMATO] <span class="h">DEVTOOLS DETECTED</span></div>
+              <div>[YAMATO] Session: <span class="h">${fp}</span></div>
+              <div>[YAMATO] Timestamp: <span class="h">${new Date().toISOString()}</span></div>
+              <div>[YAMATO] Status: <span class="ok">LOGGED ✓</span></div>
+            </div>
+          </div>`;
+        document.body.style.overflow = 'hidden';
+        const trap = () => { debugger; setTimeout(trap, 100); }; // eslint-disable-line no-debugger
+        setTimeout(trap, 300);
+      };
 
       const checkSize = () => {
         if (blocked || isMobile) return;
@@ -406,43 +463,22 @@ export default function DevToolsBlocker() {
           window.outerWidth - window.innerWidth > THRESHOLD ||
           window.outerHeight - window.innerHeight > THRESHOLD
         ) {
-          blocked = true;
-          clearInterval(sizeInterval);
-          clearInterval(consoleInterval);
-
-          const fp = Math.random().toString(36).substr(2, 16).toUpperCase();
-          document.body.innerHTML = `
-            <style>
-              *{margin:0;padding:0;box-sizing:border-box}
-              body{background:#020204;font-family:'Outfit',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;overflow:hidden}
-              .r{position:relative;z-index:2;text-align:center;padding:40px;max-width:600px}
-              .shield{width:70px;height:70px;margin:0 auto 24px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(244,114,182,0.08);border:1.5px solid rgba(244,114,182,0.2);animation:sp 2.5s ease-in-out infinite}
-              @keyframes sp{0%,100%{box-shadow:0 0 0 0 rgba(244,114,182,.25)}50%{box-shadow:0 0 0 18px rgba(244,114,182,0)}}
-              h1{font-size:2.4rem;font-weight:900;background:linear-gradient(135deg,#f472b6,#d946ef);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px}
-              p{color:#6a6a7a;font-size:.9rem;line-height:1.7;margin-bottom:20px}
-              .term{background:#0a0a0d;border:1px solid rgba(244,114,182,.1);border-radius:10px;padding:14px 18px;text-align:left;font-family:monospace;font-size:.72rem;color:#4a4a5a;line-height:1.9}
-              .h{color:#f472b6}.ok{color:#23a55a}
-            </style>
-            <div class="r">
-              <div class="shield">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f472b6" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-              </div>
-              <h1>ACCESS RESTRICTED</h1>
-              <p>Developer Tools detected. This website is protected by<br>the YAMATO Security Protocol. Close DevTools to continue.</p>
-              <div class="term">
-                <div>[YAMATO] <span class="h">DEVTOOLS DETECTED</span></div>
-                <div>[YAMATO] Session: <span class="h">${fp}</span></div>
-                <div>[YAMATO] Timestamp: <span class="h">${new Date().toISOString()}</span></div>
-                <div>[YAMATO] Status: <span class="ok">LOGGED ✓</span></div>
-              </div>
-            </div>`;
-          document.body.style.overflow = 'hidden';
-          const trap = () => { debugger; setTimeout(trap, 100); }; // eslint-disable-line no-debugger
-          setTimeout(trap, 300);
+          triggerLockdown();
         }
       };
 
-      const sizeInterval = setInterval(checkSize, 2500);
+      // ── Passive Debugger Check (Catches undocked DevTools!) ──
+      passiveInterval = setInterval(() => {
+        if (blocked) return;
+        const start = performance.now();
+        debugger; // eslint-disable-line no-debugger
+        const end = performance.now();
+        if (end - start > 100) {
+          triggerLockdown();
+        }
+      }, 1000);
+
+      sizeInterval = setInterval(checkSize, 2500);
       window.addEventListener('resize', checkSize);
 
       return () => {
@@ -453,6 +489,7 @@ export default function DevToolsBlocker() {
         window.removeEventListener('resize', checkSize);
         clearInterval(sizeInterval);
         clearInterval(consoleInterval);
+        clearInterval(passiveInterval);
       };
     }
 
