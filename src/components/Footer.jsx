@@ -9,10 +9,26 @@ export default function Footer() {
     instagram: [], twitter: [], youtube: [], github: [], discord: [] 
   });
   const [modalData, setModalData] = useState(null);
+  const [brandName, setBrandName] = useState(() => {
+    try {
+      const cached = localStorage.getItem('cached_settings');
+      if (cached) {
+        const data = JSON.parse(cached);
+        const name = data.site_name || data.hero_title || '';
+        const parts = name.trim().split(/\s+/);
+        if (parts.length >= 2) {
+          return { first: parts[0], second: parts.slice(1).join(' ') };
+        }
+        return { first: parts[0] || '', second: '' };
+      }
+    } catch (_) {}
+    return { first: '', second: '' };
+  });
 
   useEffect(() => {
     supabase.from('settings').select('*').single().then(({ data }) => {
       if (data) {
+        localStorage.setItem('cached_settings', JSON.stringify(data));
         const parse = (val) => {
           try {
             if (!val) return [];
@@ -28,6 +44,14 @@ export default function Footer() {
           github: parse(data.github),
           discord: parse(data.discord)
         });
+        
+        const name = data.site_name || data.hero_title || '';
+        const parts = name.trim().split(/\s+/);
+        if (parts.length >= 2) {
+          setBrandName({ first: parts[0], second: parts.slice(1).join(' ') });
+        } else {
+          setBrandName({ first: parts[0] || '', second: '' });
+        }
       }
     });
   }, []);
@@ -46,7 +70,7 @@ export default function Footer() {
       <div className="footer__inner">
         <div className="footer__brand reveal">
           <h3 className="footer__logo">
-            <span>HIXX</span> <span className="footer__logo-accent">PLAYZ</span>
+            <span>{brandName.first}</span> <span className="footer__logo-accent">{brandName.second}</span>
           </h3>
           <p className="footer__tagline">The one and only legend.</p>
         </div>
@@ -78,7 +102,7 @@ export default function Footer() {
       </div>
 
       <div className="footer__bottom reveal">
-        <p>&copy; {new Date().getFullYear()} HIXX PLAYZ. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} {brandName.first} {brandName.second}. All rights reserved.</p>
         <button className="footer__scroll-top" onClick={scrollToTop} aria-label="Scroll to top">
           <ArrowUp size={18} />
         </button>

@@ -102,9 +102,9 @@ function StyleApex({ socials, onSocialClick, scrollDown, heroContent }) {
 }
 
 const DEFAULT_HERO = {
-  title: 'HIXX PLAYZ',
-  description: 'Making digital memories that last forever\nwhile I enjoy my fking life. Unprofessional Discord E-gangster',
-  eyebrow: 'Genius · Playboy · Philanthropist · Leader',
+  title: '',
+  description: '',
+  eyebrow: '',
 };
 
 export default function HeroSection() {
@@ -112,12 +112,26 @@ export default function HeroSection() {
   const [socials, setSocials] = useState({ instagram: [], twitter: [], youtube: [], github: [], discord: [] });
   const [bgMusic, setBgMusic] = useState('/bg-music.mp3');
   const [modalData, setModalData] = useState(null);
-  const [heroContent, setHeroContent] = useState(DEFAULT_HERO);
+  const [heroContent, setHeroContent] = useState(() => {
+    try {
+      const cached = localStorage.getItem('cached_settings');
+      if (cached) {
+        const data = JSON.parse(cached);
+        return {
+          title: data.hero_title || '',
+          description: data.hero_description || '',
+          eyebrow: data.hero_eyebrow || '',
+        };
+      }
+    } catch (_) {}
+    return DEFAULT_HERO;
+  });
   const audioRef = useRef(null);
 
   useEffect(() => {
     supabase.from('settings').select('*').single().then(({ data }) => {
       if (!data) return;
+      localStorage.setItem('cached_settings', JSON.stringify(data));
       const parse = (val) => {
         try {
           if (!val) return [];
@@ -137,9 +151,9 @@ export default function HeroSection() {
 
       // Load dynamic hero content from settings
       setHeroContent({
-        title: data.hero_title || DEFAULT_HERO.title,
-        description: data.hero_description || DEFAULT_HERO.description,
-        eyebrow: data.hero_eyebrow || DEFAULT_HERO.eyebrow,
+        title: data.hero_title || '',
+        description: data.hero_description || '',
+        eyebrow: data.hero_eyebrow || '',
       });
     });
   }, []);

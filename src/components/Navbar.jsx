@@ -24,7 +24,21 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [indicator, setIndicator] = useState({ left: 0, width: 0, opacity: 0 });
   const [activeSection, setActiveSection] = useState(null);
-  const [brandName, setBrandName] = useState({ first: 'HIXX', second: 'PLAYZ' });
+  const [brandName, setBrandName] = useState(() => {
+    try {
+      const cached = localStorage.getItem('cached_settings');
+      if (cached) {
+        const data = JSON.parse(cached);
+        const name = data.site_name || data.hero_title || '';
+        const parts = name.trim().split(/\s+/);
+        if (parts.length >= 2) {
+          return { first: parts[0], second: parts.slice(1).join(' ') };
+        }
+        return { first: parts[0] || '', second: '' };
+      }
+    } catch (_) {}
+    return { first: '', second: '' };
+  });
   const { user, signOut } = useAuth();
   const location = useLocation();
   const pillRef = useRef(null);
@@ -33,19 +47,22 @@ export default function Navbar() {
   // ── Fetch brand name from settings ──
   useEffect(() => {
     supabase.from('settings').select('*').single().then(({ data }) => {
-      if (data?.site_name) {
-        const parts = data.site_name.trim().split(/\s+/);
-        if (parts.length >= 2) {
-          setBrandName({ first: parts[0], second: parts.slice(1).join(' ') });
-        } else {
-          setBrandName({ first: parts[0], second: '' });
-        }
-      } else if (data?.hero_title) {
-        const parts = data.hero_title.trim().split(/\s+/);
-        if (parts.length >= 2) {
-          setBrandName({ first: parts[0], second: parts.slice(1).join(' ') });
-        } else {
-          setBrandName({ first: parts[0], second: '' });
+      if (data) {
+        localStorage.setItem('cached_settings', JSON.stringify(data));
+        if (data.site_name) {
+          const parts = data.site_name.trim().split(/\s+/);
+          if (parts.length >= 2) {
+            setBrandName({ first: parts[0], second: parts.slice(1).join(' ') });
+          } else {
+            setBrandName({ first: parts[0], second: '' });
+          }
+        } else if (data.hero_title) {
+          const parts = data.hero_title.trim().split(/\s+/);
+          if (parts.length >= 2) {
+            setBrandName({ first: parts[0], second: parts.slice(1).join(' ') });
+          } else {
+            setBrandName({ first: parts[0], second: '' });
+          }
         }
       }
     });
