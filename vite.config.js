@@ -180,8 +180,8 @@ export default defineConfig({
 
     // ── JavaScript Obfuscation (build only) ──────────────────────
     obfuscator({
-      include: [/\.(js|jsx|ts|tsx)$/],
-      exclude: [/node_modules/, /setup-admin/],
+      include: [/src\/components\/DevToolsBlocker\.jsx$/],
+      exclude: [/node_modules/],
       apply: 'build',
       options: {
         compact: true,
