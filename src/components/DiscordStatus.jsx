@@ -61,9 +61,9 @@ export default function DiscordStatus({ discordId }) {
         try {
           const japiRes = await fetch(`https://japi.rest/discord/v1/user/${discordId}`);
           const japiJson = await japiRes.json();
-          if (japiJson.success && japiJson.data) {
-            japiBannerUrl = japiJson.data.bannerURL || null;
-            japiBannerColor = japiJson.data.banner_color || null;
+          if (japiJson && japiJson.id) {
+            japiBannerUrl = japiJson.bannerURL || null;
+            japiBannerColor = japiJson.banner_color || null;
           }
         } catch (japiErr) {
           console.error('JAPI fetch error:', japiErr);
