@@ -224,16 +224,115 @@ ul,ol{list-style:none}
 .skeleton-card{background:linear-gradient(90deg,var(--bg-card) 25%,rgba(255,255,255,0.05) 50%,var(--bg-card) 75%);background-size:200% 100%;border:1px solid var(--border-glass);border-radius:var(--radius-lg);height:340px;animation:shimmer-premium 2s infinite linear}
 @keyframes shimmer-premium{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-.premium-loader{position:relative;width:60px;height:60px;display:flex;align-items:center;justify-content:center}
-.loader-ring{position:absolute;width:100%;height:100%;border-radius:50%;border:4px solid transparent;border-top-color:var(--accent);animation:rotate-loader 1.5s cubic-bezier(0.5,0,0.5,1) infinite}
-.loader-ring:nth-child(2){width:75%;height:75%;border-top-color:var(--accent-bright);animation-delay:-0.2s;animation-duration:1.2s}
-.loader-ring:nth-child(3){width:50%;height:50%;border-top-color:var(--magenta);animation-delay:-0.4s;animation-duration:0.9s}
-@keyframes rotate-loader{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-
-.loader-text{margin-top:16px;font-family:'Outfit',sans-serif;font-weight:700;font-size:0.9rem;letter-spacing:2px;text-transform:uppercase;background:var(--gradient-accent);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:pulse-opacity 2s infinite ease-in-out}
-@keyframes pulse-opacity{0%,100%{opacity:0.5}50%{opacity:1}}
-
+/* ── Orbital Loader ──────────────────────────────────────────── */
+.orbital-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;width:100%;gap:28px}
 .loader-container{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;width:100%}
+
+.orbital{
+  position:relative;
+  width:calc(80px * var(--orbital-scale, 1));
+  height:calc(80px * var(--orbital-scale, 1));
+  perspective:600px;
+  transform-style:preserve-3d;
+}
+
+/* Central glowing core — the "sun" */
+.orbital__core{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:calc(14px * var(--orbital-scale, 1));
+  height:calc(14px * var(--orbital-scale, 1));
+  border-radius:50%;
+  background:radial-gradient(circle,#fff 0%,#f472b6 55%,rgba(244,114,182,0) 100%);
+  box-shadow:0 0 20px rgba(244,114,182,0.9),0 0 40px rgba(244,114,182,0.5),0 0 70px rgba(244,114,182,0.2);
+  animation:orbital-core-pulse 2s ease-in-out infinite;
+  z-index:10;
+}
+@keyframes orbital-core-pulse{
+  0%,100%{transform:translate(-50%,-50%) scale(1);box-shadow:0 0 20px rgba(244,114,182,0.9),0 0 40px rgba(244,114,182,0.5),0 0 70px rgba(244,114,182,0.2)}
+  50%{transform:translate(-50%,-50%) scale(1.45);box-shadow:0 0 28px rgba(244,114,182,0.8),0 0 56px rgba(244,114,182,0.4),0 0 90px rgba(244,114,182,0.15)}
+}
+
+/* Ring base: each ring covers the full orbital box */
+.orbital__ring{position:absolute;inset:0;transform-style:preserve-3d}
+
+/* Ring track — the faint ellipse outline */
+.orbital__track{
+  position:absolute;inset:0;
+  border-radius:50%;
+  border:1.5px solid rgba(244,114,182,0.12);
+}
+.orbital__track--2{border-color:rgba(217,70,239,0.12)}
+.orbital__track--3{
+  inset:calc(10px * var(--orbital-scale, 1));
+  border-color:rgba(249,168,212,0.1);
+}
+
+/* Orbiting dots — positioned at top of ring, orbit as ring spins */
+.orbital__dot{
+  position:absolute;
+  top:calc(-6px * var(--orbital-scale, 1));
+  left:calc(50% - 6px * var(--orbital-scale, 1));
+  width:calc(12px * var(--orbital-scale, 1));
+  height:calc(12px * var(--orbital-scale, 1));
+  border-radius:50%;
+  background:#f472b6;
+  box-shadow:0 0 14px rgba(244,114,182,0.95),0 0 28px rgba(244,114,182,0.55),0 0 44px rgba(244,114,182,0.25);
+}
+.orbital__dot--2{
+  background:#d946ef;
+  box-shadow:0 0 12px rgba(217,70,239,0.95),0 0 24px rgba(217,70,239,0.55),0 0 40px rgba(217,70,239,0.25);
+  width:calc(10px * var(--orbital-scale, 1));
+  height:calc(10px * var(--orbital-scale, 1));
+  top:calc(-5px * var(--orbital-scale, 1));
+  left:calc(50% - 5px * var(--orbital-scale, 1));
+}
+.orbital__dot--3{
+  background:#f9a8d4;
+  box-shadow:0 0 8px rgba(249,168,212,0.95),0 0 16px rgba(249,168,212,0.55);
+  width:calc(7px * var(--orbital-scale, 1));
+  height:calc(7px * var(--orbital-scale, 1));
+  top:calc(10px * var(--orbital-scale, 1) - 3.5px * var(--orbital-scale, 1));
+  left:calc(-3.5px * var(--orbital-scale, 1));
+}
+
+/* Ring animations — tilt into plane then spin Z inside that plane */
+.orbital__ring--1{animation:orbit-1 1.35s linear infinite}
+@keyframes orbit-1{
+  from{transform:rotateX(72deg) rotateZ(0deg)}
+  to{transform:rotateX(72deg) rotateZ(360deg)}
+}
+
+.orbital__ring--2{animation:orbit-2 2s linear infinite}
+@keyframes orbit-2{
+  from{transform:rotateY(72deg) rotateZ(0deg)}
+  to{transform:rotateY(72deg) rotateZ(360deg)}
+}
+
+.orbital__ring--3{animation:orbit-3 1.7s linear infinite reverse}
+@keyframes orbit-3{
+  from{transform:rotateX(-50deg) rotateY(55deg) rotateZ(0deg)}
+  to{transform:rotateX(-50deg) rotateY(55deg) rotateZ(360deg)}
+}
+
+/* Label beneath the orbital */
+.orbital__label{
+  font-family:'Outfit',sans-serif;
+  font-weight:700;
+  font-size:calc(0.82rem * var(--orbital-scale, 1));
+  letter-spacing:3px;
+  text-transform:uppercase;
+  background:var(--gradient-accent);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  animation:orbital-label-pulse 2s ease-in-out infinite;
+}
+@keyframes orbital-label-pulse{
+  0%,100%{opacity:0.45}
+  50%{opacity:1}
+}
 
 @media(max-width:1024px){.loading-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:640px){.loading-grid{grid-template-columns:1fr}}
