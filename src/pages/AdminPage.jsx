@@ -17,7 +17,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({});
-  const [settingsData, setSettingsData] = useState({ about_text: '', instagram: '', twitter: '', youtube: '', github: '', discord_id: '', bg_music_url: '', discord: '', announcement_text: '', announcement_active: false, discord_bio: '', hero_title: '', hero_description: '', hero_eyebrow: '', seo_logo_url: '', favicon_url: '', site_name: '' });
+  const [settingsData, setSettingsData] = useState({ about_text: '', instagram: '', twitter: '', youtube: '', github: '', discord_id: '', bg_music_url: '', discord: '', announcement_text: '', announcement_active: false, discord_bio: '', hero_title: '', hero_description: '', hero_eyebrow: '', seo_logo_url: '', favicon_url: '', site_name: '', custom_banner_url: '' });
   const [uploadingField, setUploadingField] = useState(null);
 
   // Auto-fetch YouTube title
@@ -255,6 +255,21 @@ export default function AdminPage() {
                   </label>
                   <input className="admin-input" type="text" value={settingsData.favicon_url || ''} onChange={(e) => setSettingsData({...settingsData, favicon_url: e.target.value})} placeholder="Or paste icon URL" />
                   {settingsData.favicon_url && <img src={settingsData.favicon_url} alt="Favicon Preview" style={{ width: '32px', height: '32px', objectFit: 'contain', borderRadius: '4px', border: '1px solid var(--border-glass)' }} />}
+                </div>
+              </div>
+
+              {/* ── Custom Discord Banner ── */}
+              <div className="settings-group" style={{ padding: '20px', background: 'rgba(124,58,237,0.03)', borderRadius: '16px', border: '1px solid rgba(124,58,237,0.12)' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', color: '#a78bfa', fontSize: '1rem', fontWeight: '700' }}>🆔 Custom Profile Banner Fallback</label>
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '12px' }}>Upload a custom image to use as your Discord card background banner. This serves as a guaranteed fallback if the live Discord API is rate-limited or fails to load.</p>
+                <div className="file-upload-container">
+                  <label className={`file-upload-label ${uploadingField === 'custom_banner_url' ? 'file-upload-label--active' : ''}`}>
+                    {uploadingField === 'custom_banner_url' ? <Loader2 className="spinner" size={18} /> : <Upload size={18} />}
+                    <span>{uploadingField === 'custom_banner_url' ? 'Uploading...' : 'Upload Custom Banner'}</span>
+                    <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, 'custom_banner_url')} />
+                  </label>
+                  <input className="admin-input" type="text" value={settingsData.custom_banner_url || ''} onChange={(e) => setSettingsData({...settingsData, custom_banner_url: e.target.value})} placeholder="Or paste banner image URL" />
+                  {settingsData.custom_banner_url && <img src={settingsData.custom_banner_url} alt="Banner Preview" style={{ width: '120px', height: '45px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--border-glass)' }} />}
                 </div>
               </div>
 

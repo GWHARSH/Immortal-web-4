@@ -149,9 +149,9 @@ export default function DiscordStatus({ discordId }) {
     ? `https://cdn.discordapp.com/avatars/${discord_user.id}/${discord_user.avatar}${discord_user.avatar.startsWith('a_') ? '.gif' : '.png'}?size=256`
     : `https://cdn.discordapp.com/embed/avatars/${parseInt(discord_user.discriminator || '0') % 5}.png`;
 
-  const bannerUrl = discord_user.banner
+  const bannerUrl = settings?.custom_banner_url || (discord_user.banner
     ? (discord_user.banner.startsWith('http') ? discord_user.banner : `https://cdn.discordapp.com/banners/${discord_user.id}/${discord_user.banner}${discord_user.banner.startsWith('a_') ? '.gif' : '.png'}?size=600`)
-    : null;
+    : null);
 
   const bannerColor = discord_user.banner_color || '#1a0a1e';
 
