@@ -1,23 +1,57 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogIn, LogOut } from 'lucide-react';
+import { LogIn, LogOut, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '../lib/supabase';
 
 const NAV_LINKS = [
-  { name: 'Home', path: '/' },
-  { name: 'Uploads', path: '/uploads' },
-  { name: 'Packages', path: '/packages' },
+  { name: 'Home', path: '/', section: 'hero' },
+  { name: 'Uploads', path: '/uploads', section: 'uploads' },
+  { name: 'Packages', path: '/packages', section: 'packages' },
 ];
+
+// Map section IDs to nav link paths
+const SECTION_TO_PATH = {
+  hero: '/',
+  about: '/',
+  uploads: '/uploads',
+  packages: '/packages',
+};
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [indicator, setIndicator] = useState({ left: 0, width: 0, opacity: 0 });
+  const [activeSection, setActiveSection] = useState(null);
+  const [brandName, setBrandName] = useState({ first: 'HIXX', second: 'PLAYZ' });
   const { user, signOut } = useAuth();
   const location = useLocation();
   const pillRef = useRef(null);
+  const observerRef = useRef(null);
 
+  // ── Fetch brand name from settings ──
+  useEffect(() => {
+    supabase.from('settings').select('*').single().then(({ data }) => {
+      if (data?.site_name) {
+        const parts = data.site_name.trim().split(/\s+/);
+        if (parts.length >= 2) {
+          setBrandName({ first: parts[0], second: parts.slice(1).join(' ') });
+        } else {
+          setBrandName({ first: parts[0], second: '' });
+        }
+      } else if (data?.hero_title) {
+        const parts = data.hero_title.trim().split(/\s+/);
+        if (parts.length >= 2) {
+          setBrandName({ first: parts[0], second: parts.slice(1).join(' ') });
+        } else {
+          setBrandName({ first: parts[0], second: '' });
+        }
+      }
+    });
+  }, []);
+
+  // ── Scroll detection ──
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
@@ -27,6 +61,69 @@ export default function Navbar() {
 
   useEffect(() => { setMobileOpen(false); }, [location]);
 
+  // ── Scroll-spy: IntersectionObserver on homepage ──
+  useEffect(() => {
+    if (location.pathname !== '/') {
+      setActiveSection(null);
+      if (observerRef.current) observerRef.current.disconnect();
+      return;
+    }
+
+    const sectionIds = ['hero', 'about', 'uploads', 'packages'];
+    const visibilityMap = {};
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          visibilityMap[entry.target.id] = entry.intersectionRatio;
+        });
+
+        // Find the section with the highest visibility
+        let maxRatio = 0;
+        let maxSection = 'hero';
+        for (const id of sectionIds) {
+          const ratio = visibilityMap[id] || 0;
+          if (ratio > maxRatio) {
+            maxRatio = ratio;
+            maxSection = id;
+          }
+        }
+        setActiveSection(maxSection);
+      },
+      {
+        root: null,
+        rootMargin: '-10% 0px -10% 0px',
+        threshold: [0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0],
+      }
+    );
+
+    observerRef.current = observer;
+
+    // Observe all sections after a brief delay to ensure they're rendered
+    const t = setTimeout(() => {
+      sectionIds.forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) observer.observe(el);
+      });
+    }, 100);
+
+    return () => {
+      clearTimeout(t);
+      observer.disconnect();
+    };
+  }, [location.pathname]);
+
+  // ── Determine active link ──
+  const getActivePath = useCallback(() => {
+    if (location.pathname === '/' && activeSection) {
+      return SECTION_TO_PATH[activeSection] || '/';
+    }
+    return location.pathname;
+  }, [location.pathname, activeSection]);
+
+  const activePath = getActivePath();
+
+  // ── Indicator position update ──
   const updateIndicator = useCallback(() => {
     if (!pillRef.current) return;
     const active = pillRef.current.querySelector('.nav2__link--active');
@@ -37,14 +134,14 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    // Small delay so the link renders first
     const t = setTimeout(updateIndicator, 20);
     window.addEventListener('resize', updateIndicator, { passive: true });
     return () => { clearTimeout(t); window.removeEventListener('resize', updateIndicator); };
-  }, [location.pathname, updateIndicator]);
+  }, [activePath, updateIndicator]);
 
-  const links = user?.role === 'admin'
-    ? [...NAV_LINKS, { name: 'Admin', path: '/admin' }]
+  const isAdmin = user?.role === 'admin';
+  const links = isAdmin
+    ? [...NAV_LINKS, { name: 'Admin', path: '/admin', isAdmin: true }]
     : NAV_LINKS;
 
   return (
@@ -53,10 +150,10 @@ export default function Navbar() {
       <nav className={`nav2 ${scrolled ? 'nav2--scrolled' : ''}`} aria-label="Main navigation">
         <div className="nav2__bar">
 
-          {/* Logo */}
+          {/* Logo — dynamic from settings */}
           <Link to="/" className="nav2__logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <span className="nav2__logo-white">HIXX</span>
-            <span className="nav2__logo-pink">PLAYZ</span>
+            <span className="nav2__logo-white">{brandName.first}</span>
+            {brandName.second && <span className="nav2__logo-pink">{brandName.second}</span>}
           </Link>
 
           {/* Center pill links */}
@@ -71,8 +168,9 @@ export default function Navbar() {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`nav2__link ${location.pathname === link.path ? 'nav2__link--active' : ''}`}
+                className={`nav2__link ${activePath === link.path ? 'nav2__link--active' : ''} ${link.isAdmin ? 'nav2__link--admin' : ''}`}
               >
+                {link.isAdmin && <Shield size={12} style={{ marginRight: 4 }} />}
                 {link.name}
               </Link>
             ))}
@@ -146,10 +244,11 @@ export default function Navbar() {
                 >
                   <Link
                     to={link.path}
-                    className={`nav2__mob-link ${location.pathname === link.path ? 'nav2__mob-link--active' : ''}`}
+                    className={`nav2__mob-link ${activePath === link.path ? 'nav2__mob-link--active' : ''} ${link.isAdmin ? 'nav2__mob-link--admin' : ''}`}
                     onClick={() => setMobileOpen(false)}
                   >
                     <span className="nav2__mob-num">0{i + 1}</span>
+                    {link.isAdmin && <Shield size={14} style={{ marginRight: 4 }} />}
                     {link.name}
                   </Link>
                 </motion.div>

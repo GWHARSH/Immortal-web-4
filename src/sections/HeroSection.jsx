@@ -4,14 +4,6 @@ import { ChevronDown, Volume2, VolumeX } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import heroImg from '/hero-f1.jpg';
 
-const STYLES = [
-  { id: 'apex',       label: '01', name: 'APEX'       },
-  { id: 'circuit',    label: '02', name: 'CIRCUIT'    },
-  { id: 'podium',     label: '03', name: 'PODIUM'     },
-  { id: 'velocity',   label: '04', name: 'VELOCITY'   },
-  { id: 'slipstream', label: '05', name: 'SLIPSTREAM' },
-];
-
 // ── Shared social icons map ──────────────────────────────────
 const SocialIcons = {
   instagram: (
@@ -45,9 +37,9 @@ function SocialsRow({ socials, onSocialClick, className = '' }) {
           rel="noopener noreferrer"
           aria-label={key}
           className="hero-social-icon"
-          whileHover={{ scale: 1.15, y: -4 }}
-          whileTap={{ scale: 0.92 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+          whileHover={{ scale: 1.1, y: -2 }}
+          whileTap={{ scale: 0.95 }}
+          transition={{ type: 'tween', duration: 0.15 }}
         >
           {SocialIcons[key]}
         </motion.a>
@@ -56,270 +48,71 @@ function SocialsRow({ socials, onSocialClick, className = '' }) {
   );
 }
 
+// Helper to render subtitle with line breaks
+function HeroSubtitle({ text, className = '' }) {
+  const lines = (text || '').split('\n');
+  return (
+    <p className={`hs__subtitle ${className}`}>
+      {lines.map((line, i) => (
+        <span key={i}>{line}{i < lines.length - 1 && <br />}</span>
+      ))}
+    </p>
+  );
+}
+
 // ══════════════════════════════════════════════════════
-//  STYLE 1 — APEX  (Full-bleed, centered minimal)
+//  STYLE — APEX (Exclusive Locked Theme, CPU Optimized)
 // ══════════════════════════════════════════════════════
-function StyleApex({ socials, onSocialClick, scrollDown }) {
+function StyleApex({ socials, onSocialClick, scrollDown, heroContent }) {
   return (
     <div className="hs hs--apex">
-      <img src={heroImg} alt="" className="hs__bg-img" aria-hidden="true" />
+      <img src={heroImg} alt="" className="hs__bg-img" aria-hidden="true" loading="eager" />
       <div className="hs__overlay hs__overlay--apex" />
       <div className="hs__noise" />
+
+      {/* Lightweight, CPU-friendly background orbs */}
       <div className="hs__orbs">
         <div className="hs__orb hs__orb--1" />
         <div className="hs__orb hs__orb--2" />
       </div>
 
-      <motion.div className="hs__content hs__content--center"
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
+      <div className="hs__content hs__content--center">
+        <p className="hs__eyebrow">
+          {heroContent.eyebrow}
+        </p>
 
-        <motion.p className="hs__eyebrow"
-          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.5 }}>
-          Genius · Playboy · Philanthropist · Leader
-        </motion.p>
-
-        <motion.h1 className="hs__title hs__title--apex"
-          initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.6 }}>
-          <span className="hs__t-white">HIXX</span>
-          <span className="hs__t-accent"> PLAYZ</span>
-        </motion.h1>
+        <h1 className="hs__title hs__title--apex">
+          <span className="hs__t-white">{heroContent.titleFirst}</span>
+          <span className="hs__t-accent"> {heroContent.titleLast}</span>
+        </h1>
 
         <div className="hs__apex-rule" />
 
-        <motion.p className="hs__subtitle"
-          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.5 }}>
-          Making digital memories that last forever<br />
-          while I enjoy my fking life. Unprofessional Discord E-gangster
-        </motion.p>
+        <HeroSubtitle text={heroContent.description} />
 
-        <SocialsRow socials={socials} onSocialClick={onSocialClick} />
-      </motion.div>
+        <SocialsRow socials={socials} onSocialClick={onSocialClick} className="hero-socials--center" />
+      </div>
 
-      <motion.button className="hs__scroll" onClick={scrollDown}
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}>
+      <button className="hs__scroll" onClick={scrollDown} aria-label="Scroll to content">
         <ChevronDown size={26} />
-      </motion.button>
+      </button>
       <div className="hs__fade-bottom" />
     </div>
   );
 }
 
-// ══════════════════════════════════════════════════════
-//  STYLE 2 — CIRCUIT  (50/50 split, diagonal cut)
-// ══════════════════════════════════════════════════════
-function StyleCircuit({ socials, onSocialClick, scrollDown }) {
-  return (
-    <div className="hs hs--circuit">
-      {/* Right: F1 image panel */}
-      <div className="hs__circuit-img-wrap">
-        <img src={heroImg} alt="" className="hs__circuit-img" aria-hidden="true" />
-        <div className="hs__circuit-img-fade" />
-      </div>
+const DEFAULT_HERO = {
+  title: 'HIXX PLAYZ',
+  description: 'Making digital memories that last forever\nwhile I enjoy my fking life. Unprofessional Discord E-gangster',
+  eyebrow: 'Genius · Playboy · Philanthropist · Leader',
+};
 
-      {/* Left: text */}
-      <div className="hs__noise" />
-      <motion.div className="hs__content hs__content--left"
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
-
-        <motion.p className="hs__label-tag"
-          initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
-          DISCORD E-GANGSTER
-        </motion.p>
-
-        <motion.h1 className="hs__title hs__title--circuit"
-          initial={{ opacity: 0, x: -32 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3, duration: 0.6 }}>
-          <span className="hs__t-white">HIXX</span><br />
-          <span className="hs__t-accent">PLAYZ</span>
-        </motion.h1>
-
-        <motion.p className="hs__subtitle hs__subtitle--left"
-          initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-          Making digital memories that last forever
-          while I enjoy my fking life.
-        </motion.p>
-
-        <SocialsRow socials={socials} onSocialClick={onSocialClick} className="hero-socials--left" />
-
-        <div className="hs__circuit-stats">
-          <div className="hs__stat"><span className="hs__stat-num">∞</span><span className="hs__stat-label">Uploads</span></div>
-          <div className="hs__stat-div" />
-          <div className="hs__stat"><span className="hs__stat-num">∞</span><span className="hs__stat-label">Packages</span></div>
-          <div className="hs__stat-div" />
-          <div className="hs__stat"><span className="hs__stat-num">∞</span><span className="hs__stat-label">Members</span></div>
-        </div>
-      </motion.div>
-
-      <motion.button className="hs__scroll hs__scroll--left" onClick={scrollDown}
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}>
-        <ChevronDown size={26} />
-      </motion.button>
-    </div>
-  );
-}
-
-// ══════════════════════════════════════════════════════
-//  STYLE 3 — PODIUM  (Title top-left, image bottom-right)
-// ══════════════════════════════════════════════════════
-function StylePodium({ socials, onSocialClick, scrollDown }) {
-  return (
-    <div className="hs hs--podium">
-      <div className="hs__noise" />
-
-      {/* Pink racing stripe */}
-      <div className="hs__podium-stripe" />
-
-      {/* F1 image bottom-right */}
-      <div className="hs__podium-img-wrap">
-        <img src={heroImg} alt="" className="hs__podium-img" aria-hidden="true" />
-        <div className="hs__podium-img-fade" />
-      </div>
-
-      {/* Top-left content */}
-      <motion.div className="hs__content hs__content--topleft"
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
-
-        <motion.p className="hs__eyebrow hs__eyebrow--left"
-          initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 }}>
-          Genius · Playboy · Philanthropist · Leader
-        </motion.p>
-
-        <motion.h1 className="hs__title hs__title--podium"
-          initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25, duration: 0.65 }}>
-          <span className="hs__t-white">HIXX</span>
-          <br />
-          <span className="hs__t-accent">PLAYZ</span>
-        </motion.h1>
-
-        <motion.p className="hs__subtitle hs__subtitle--left"
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
-          Making digital memories that last forever<br />
-          while I enjoy my fking life.
-        </motion.p>
-
-        <SocialsRow socials={socials} onSocialClick={onSocialClick} className="hero-socials--left" />
-      </motion.div>
-
-      <motion.button className="hs__scroll" onClick={scrollDown}
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}>
-        <ChevronDown size={26} />
-      </motion.button>
-      <div className="hs__fade-bottom" />
-    </div>
-  );
-}
-
-// ══════════════════════════════════════════════════════
-//  STYLE 4 — VELOCITY  (Cinematic dark panel left)
-// ══════════════════════════════════════════════════════
-function StyleVelocity({ socials, onSocialClick, scrollDown }) {
-  return (
-    <div className="hs hs--velocity">
-      {/* Full-bleed image */}
-      <img src={heroImg} alt="" className="hs__velocity-img" aria-hidden="true" />
-      <div className="hs__velocity-vignette" />
-      <div className="hs__noise" />
-
-      {/* Left dark panel content */}
-      <motion.div className="hs__content hs__content--left hs__content--velocity"
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
-
-        <motion.div className="hs__velocity-badge"
-          initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <span className="hs__velocity-dot" />
-          LIVE SESSION
-        </motion.div>
-
-        <motion.h1 className="hs__title hs__title--velocity"
-          initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.6 }}>
-          <span className="hs__t-white">HIXX</span>
-          <br />
-          <span className="hs__t-accent">PLAYZ</span>
-        </motion.h1>
-
-        <motion.p className="hs__subtitle hs__subtitle--left"
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
-          Making digital memories that last forever.<br />
-          Unprofessional Discord E-gangster.
-        </motion.p>
-
-        <SocialsRow socials={socials} onSocialClick={onSocialClick} className="hero-socials--left" />
-      </motion.div>
-
-      <motion.button className="hs__scroll hs__scroll--left" onClick={scrollDown}
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}>
-        <ChevronDown size={26} />
-      </motion.button>
-    </div>
-  );
-}
-
-// ══════════════════════════════════════════════════════
-//  STYLE 5 — SLIPSTREAM  (Grid bg + 3D tilt card)
-// ══════════════════════════════════════════════════════
-function StyleSlipstream({ socials, onSocialClick, scrollDown }) {
-  return (
-    <div className="hs hs--slipstream">
-      <div className="hs__grid-bg" />
-      <div className="hs__noise" />
-      <div className="hs__orbs">
-        <div className="hs__orb hs__orb--1" />
-        <div className="hs__orb hs__orb--2" />
-      </div>
-
-      {/* 3D tilted card on right */}
-      <motion.div
-        className="hs__slip-card"
-        initial={{ opacity: 0, rotateY: -20, x: 60 }}
-        animate={{ opacity: 1, rotateY: -8, x: 0 }}
-        transition={{ delay: 0.4, duration: 0.9, ease: [0.4, 0, 0.2, 1] }}
-        style={{ perspective: 1000 }}
-      >
-        <img src={heroImg} alt="F1 Car" className="hs__slip-img" />
-        <div className="hs__slip-img-overlay" />
-      </motion.div>
-
-      {/* Left text content */}
-      <motion.div className="hs__content hs__content--left hs__content--slip"
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.7 }}>
-
-        <motion.p className="hs__label-tag"
-          initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 }}>
-          DIGITAL CREATOR
-        </motion.p>
-
-        <motion.h1 className="hs__title hs__title--slipstream"
-          initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25, duration: 0.6 }}>
-          <span className="hs__t-outline">HIXX</span>
-          <br />
-          <span className="hs__t-accent">PLAYZ</span>
-        </motion.h1>
-
-        <motion.p className="hs__subtitle hs__subtitle--left"
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }}>
-          Making digital memories that last forever.<br />
-          Unprofessional Discord E-gangster.
-        </motion.p>
-
-        <SocialsRow socials={socials} onSocialClick={onSocialClick} className="hero-socials--left" />
-      </motion.div>
-
-      <motion.button className="hs__scroll" onClick={scrollDown}
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}>
-        <ChevronDown size={26} />
-      </motion.button>
-    </div>
-  );
-}
-
-// ══════════════════════════════════════════════════════
-//  MAIN HERO SECTION
-// ══════════════════════════════════════════════════════
 export default function HeroSection() {
-  const [styleIdx, setStyleIdx] = useState(0);
   const [isMuted, setIsMuted] = useState(true);
   const [socials, setSocials] = useState({ instagram: [], twitter: [], youtube: [], github: [], discord: [] });
   const [bgMusic, setBgMusic] = useState('/bg-music.mp3');
   const [modalData, setModalData] = useState(null);
+  const [heroContent, setHeroContent] = useState(DEFAULT_HERO);
   const audioRef = useRef(null);
 
   useEffect(() => {
@@ -341,8 +134,25 @@ export default function HeroSection() {
         discord: parse(data.discord),
       });
       if (data.bg_music_url) setBgMusic(data.bg_music_url);
+
+      // Load dynamic hero content from settings
+      setHeroContent({
+        title: data.hero_title || DEFAULT_HERO.title,
+        description: data.hero_description || DEFAULT_HERO.description,
+        eyebrow: data.hero_eyebrow || DEFAULT_HERO.eyebrow,
+      });
     });
   }, []);
+
+  // Parse title into first/last parts
+  const titleParts = (heroContent.title || 'HIXX PLAYZ').trim().split(/\s+/);
+  const titleLast = titleParts.length > 1 ? titleParts.pop() : '';
+  const titleFirst = titleParts.join(' ');
+  const parsedHero = {
+    ...heroContent,
+    titleFirst: titleFirst || heroContent.title,
+    titleLast: titleLast,
+  };
 
   const handleSocialClick = (e, platform, links) => {
     if (links && links.length > 1) {
@@ -360,39 +170,9 @@ export default function HeroSection() {
 
   const scrollDown = () => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
 
-  const StyleComponents = [StyleApex, StyleCircuit, StylePodium, StyleVelocity, StyleSlipstream];
-  const ActiveStyle = StyleComponents[styleIdx];
-
   return (
     <section className="hero-wrapper" id="hero">
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={styleIdx}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.45 }}
-          style={{ height: '100%' }}
-        >
-          <ActiveStyle socials={socials} onSocialClick={handleSocialClick} scrollDown={scrollDown} />
-        </motion.div>
-      </AnimatePresence>
-
-      {/* ── Style Switcher ── */}
-      <div className="hs-switcher">
-        <span className="hs-switcher__label">STYLES</span>
-        {STYLES.map((s, i) => (
-          <button
-            key={s.id}
-            className={`hs-switcher__btn ${styleIdx === i ? 'hs-switcher__btn--active' : ''}`}
-            onClick={() => setStyleIdx(i)}
-            aria-label={`Hero style ${s.name}`}
-          >
-            <span className="hs-switcher__num">{s.label}</span>
-            <span className="hs-switcher__name">{s.name}</span>
-          </button>
-        ))}
-      </div>
+      <StyleApex socials={socials} onSocialClick={handleSocialClick} scrollDown={scrollDown} heroContent={parsedHero} />
 
       {/* ── Music toggle ── */}
       <div className="music-toggle">
@@ -418,7 +198,8 @@ export default function HeroSection() {
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={() => setModalData(null)}>
             <motion.div className="social-modal"
-              initial={{ scale: 0.92, y: 16 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.92, y: 16 }}
+              initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }}
+              transition={{ duration: 0.18 }}
               onClick={e => e.stopPropagation()}>
               <h3 className="social-modal__title">
                 Choose <span className="text-accent">{modalData.platform}</span> Account

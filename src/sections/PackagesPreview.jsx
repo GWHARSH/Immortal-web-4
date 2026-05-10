@@ -39,10 +39,10 @@ export default function PackagesPreview() {
       <div className="section-preview__inner">
         <motion.div
           className="section-preview__header"
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.5 }}
         >
           <span className="section-label">Packages</span>
           <h2 className="section-title">Featured <span className="text-accent">Packages</span></h2>
@@ -61,10 +61,10 @@ export default function PackagesPreview() {
 
         <motion.div
           className="section-preview__cta"
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.4 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
         >
           <Link to="/packages" className="btn btn--primary btn--lg">
             Show More <ArrowRight size={18} />

@@ -13,17 +13,30 @@ import { NotificationProvider } from './context/NotificationContext';
 import DevToolsBlocker from './components/DevToolsBlocker';
 import AnnouncementPopup from './components/AnnouncementPopup';
 import ScrollToTop from './components/ScrollToTop';
+import SeoHead from './components/SeoHead';
 import { useTracking } from './hooks/useTracking';
 import { useAntiBot } from './hooks/useAntiBot';
+import { useGlobalScrollReveal } from './hooks/useScrollReveal';
 import './index.css';
 
 function AppInner() {
   useTracking();
   useAntiBot();
+  useGlobalScrollReveal();
   return (
     <>
+      <SeoHead />
       <ScrollToTop />
       <Navbar />
+      {/* Floating background particles */}
+      <div className="bg-particles">
+        <div className="bg-particles__dot bg-particles__dot--1" />
+        <div className="bg-particles__dot bg-particles__dot--2" />
+        <div className="bg-particles__dot bg-particles__dot--3" />
+        <div className="bg-particles__dot bg-particles__dot--4" />
+        <div className="bg-particles__dot bg-particles__dot--5" />
+        <div className="bg-particles__dot bg-particles__dot--6" />
+      </div>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/uploads" element={<UploadsPage />} />

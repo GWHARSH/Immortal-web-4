@@ -180,15 +180,13 @@ export default defineConfig({
 
     // ── JavaScript Obfuscation (build only) ──────────────────────
     obfuscator({
-      include: [/src\/.*\.(js|jsx|ts|tsx)$/],
+      include: [/src\/components\/DevToolsBlocker\.jsx$/],
       exclude: [/node_modules/],
       apply: 'build',
       options: {
         compact: true,
-        controlFlowFlattening: true,
-        controlFlowFlatteningThreshold: 0.8,
-        deadCodeInjection: true,
-        deadCodeInjectionThreshold: 0.3,
+        controlFlowFlattening: false,
+        deadCodeInjection: false,
         debugProtection: true,
         debugProtectionInterval: 4000,
         disableConsoleOutput: false,
@@ -251,7 +249,7 @@ export default defineConfig({
         keep_fnames: false,
         properties: { regex: /^_private_/ },
       },
-      output: {
+      format: {
         comments: false,
         ascii_only: true,
         beautify: false,

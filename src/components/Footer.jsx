@@ -44,26 +44,26 @@ export default function Footer() {
   return (
     <footer className="footer">
       <div className="footer__inner">
-        <div className="footer__brand">
+        <div className="footer__brand reveal">
           <h3 className="footer__logo">
             <span>HIXX</span> <span className="footer__logo-accent">PLAYZ</span>
           </h3>
           <p className="footer__tagline">The one and only legend.</p>
         </div>
 
-        <div className="footer__nav">
+        <div className="footer__nav reveal reveal-d1">
           <h4>Navigation</h4>
           <Link to="/">Home</Link>
           <Link to="/uploads">Uploads</Link>
           <Link to="/packages">Packages</Link>
         </div>
 
-        <div className="footer__nav">
+        <div className="footer__nav reveal reveal-d2">
           <h4>Account</h4>
           <Link to="/login">Login</Link>
         </div>
 
-        <div className="footer__socials">
+        <div className="footer__socials reveal reveal-d3">
           <h4>Follow</h4>
           <div className="footer__social-icons">
             <a href={socials.instagram[0]?.url || "#"} onClick={(e) => handleSocialClick(e, 'Instagram', socials.instagram)} target="_blank" rel="noopener noreferrer" aria-label="Instagram"><Camera size={20} /></a>
@@ -77,7 +77,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="footer__bottom">
+      <div className="footer__bottom reveal">
         <p>&copy; {new Date().getFullYear()} HIXX PLAYZ. All rights reserved.</p>
         <button className="footer__scroll-top" onClick={scrollToTop} aria-label="Scroll to top">
           <ArrowUp size={18} />

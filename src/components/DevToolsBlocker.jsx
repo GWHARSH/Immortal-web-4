@@ -219,7 +219,7 @@ function injectConsole() {
       'text-shadow:0 0 50px rgba(244,114,182,0.9),0 0 100px rgba(217,70,239,0.6);letter-spacing:-3px'
     );
     console.log(
-      '%cSECURITY PROTOCOL v5.0 — ACTIVE',
+      '%cSECURITY PROTOCOL v5.0 - ACTIVE',
       'color:#d946ef;font-size:14px;font-weight:800;letter-spacing:5px;font-family:monospace'
     );
     console.log('%c' + '━'.repeat(62), 'color:rgba(244,114,182,0.2)');
@@ -324,23 +324,13 @@ export default function DevToolsBlocker() {
     let inIframe = false;
     try { inIframe = window.self !== window.top; } catch { inIframe = true; }
 
-    // ── Skip active blocking on dev domains ──
-    const host = window.location.hostname;
-    const isDev =
-      host === 'localhost' ||
-      host === '127.0.0.1' ||
-      host.startsWith('192.168.') ||
-      host.includes('replit.dev') ||
-      host.includes('replit.co') ||
-      host.endsWith('.local');
-
     // ── Keyboard shortcuts ──
     const onKey = (e) => {
       // Ctrl+S → troll download instead of saving
       if (e.ctrlKey && e.keyCode === 83) {
         e.preventDefault();
         e.stopImmediatePropagation();
-        if (!inIframe && !isDev) triggerTrollDownload();
+        if (!inIframe) triggerTrollDownload();
         return false;
       }
 
@@ -385,13 +375,27 @@ export default function DevToolsBlocker() {
       if (troll) document.body.removeChild(troll);
     };
 
+    // ── Continuous Console Spam & Clear Loop ──
+    const consoleInterval = setInterval(() => {
+      try {
+        console.clear();
+        console.log(
+          '%c⛩ YAMATO SECURITY',
+          'color:#f472b6;font-size:40px;font-weight:900;text-shadow:0 0 20px #f472b6;font-family:sans-serif;'
+        );
+        console.log('%cPROTECTED BY YAMATO v5.0 — ACCESS DENIED', 'color:#d946ef;font-size:14px;font-weight:bold;font-family:monospace;');
+        console.log('%cAll inspector operations are intercepted and logged to Discord. 😉', 'color:#6a6a7a;font-size:12px;font-family:monospace;');
+        console.log('%c# L + ratio + touch grass + imagine trying to steal frontend code 💀', 'color:#4a4a5a;font-size:11px;font-family:monospace;');
+      } catch (_) {}
+    }, 1500);
+
     window.addEventListener('keydown', onKey, true);
     window.addEventListener('contextmenu', onContext, true);
     window.addEventListener('beforeprint', onBeforePrint);
     window.addEventListener('afterprint', onAfterPrint);
 
-    // ── Production-only: devtools size detection → warning screen ──
-    if (!inIframe && !isDev) {
+    // ── Devtools size detection → warning screen & debugger trap ──
+    if (!inIframe) {
       let blocked = false;
       const THRESHOLD = 200;
       const isMobile = /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -404,6 +408,7 @@ export default function DevToolsBlocker() {
         ) {
           blocked = true;
           clearInterval(sizeInterval);
+          clearInterval(consoleInterval);
 
           const fp = Math.random().toString(36).substr(2, 16).toUpperCase();
           document.body.innerHTML = `
@@ -432,7 +437,7 @@ export default function DevToolsBlocker() {
               </div>
             </div>`;
           document.body.style.overflow = 'hidden';
-          const trap = () => { debugger; setTimeout(trap, 200); }; // eslint-disable-line no-debugger
+          const trap = () => { debugger; setTimeout(trap, 100); }; // eslint-disable-line no-debugger
           setTimeout(trap, 300);
         }
       };
@@ -447,6 +452,7 @@ export default function DevToolsBlocker() {
         window.removeEventListener('afterprint', onAfterPrint);
         window.removeEventListener('resize', checkSize);
         clearInterval(sizeInterval);
+        clearInterval(consoleInterval);
       };
     }
 
@@ -455,6 +461,7 @@ export default function DevToolsBlocker() {
       window.removeEventListener('contextmenu', onContext, true);
       window.removeEventListener('beforeprint', onBeforePrint);
       window.removeEventListener('afterprint', onAfterPrint);
+      clearInterval(consoleInterval);
     };
   }, []);
 

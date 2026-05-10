@@ -15,7 +15,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({});
-  const [settingsData, setSettingsData] = useState({ about_text: '', instagram: '', twitter: '', youtube: '', github: '', discord_id: '', bg_music_url: '', discord: '', announcement_text: '', announcement_active: false, discord_bio: '' });
+  const [settingsData, setSettingsData] = useState({ about_text: '', instagram: '', twitter: '', youtube: '', github: '', discord_id: '', bg_music_url: '', discord: '', announcement_text: '', announcement_active: false, discord_bio: '', hero_title: '', hero_description: '', hero_eyebrow: '', seo_logo_url: '', site_name: '' });
   const [uploadingField, setUploadingField] = useState(null);
 
   // Auto-fetch YouTube title
@@ -98,26 +98,20 @@ export default function AdminPage() {
     setUploadingField(fieldName);
     
     try {
-      const fileExt = file.name.split('.').pop();
-      const baseName = file.name.substring(0, file.name.lastIndexOf('.')).replace(/[^a-z0-9]/gi, '-').toLowerCase();
-      const fileName = `${baseName}-${Date.now().toString(36)}.${fileExt}`;
-      
-      const { error: uploadError } = await supabase.storage.from('files').upload(fileName, file);
-
-      if (uploadError) {
-        show('Error uploading file: ' + uploadError.message, 'error');
-      } else {
-        const { data } = supabase.storage.from('files').getPublicUrl(fileName);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64Url = reader.result;
         if (activeTab === 'settings') {
-          setSettingsData(prev => ({ ...prev, [fieldName]: data.publicUrl }));
+          setSettingsData(prev => ({ ...prev, [fieldName]: base64Url }));
         } else {
-          setFormData(prev => ({ ...prev, [fieldName]: data.publicUrl }));
+          setFormData(prev => ({ ...prev, [fieldName]: base64Url }));
         }
-        show('File uploaded successfully!', 'success');
-      }
+        show('Image converted to URL successfully!', 'success');
+        setUploadingField(null);
+      };
+      reader.readAsDataURL(file);
     } catch (err) {
-      show('Upload failed: ' + err.message, 'error');
-    } finally {
+      show('Conversion failed: ' + err.message, 'error');
       setUploadingField(null);
     }
   };
@@ -217,6 +211,34 @@ export default function AdminPage() {
             <p>Loading...</p>
           ) : activeTab === 'settings' ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {/* ── Hero Content ── */}
+              <div className="settings-group" style={{ padding: '20px', background: 'rgba(244,114,182,0.03)', borderRadius: '16px', border: '1px solid rgba(244,114,182,0.12)' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', color: 'var(--accent)', fontSize: '1rem', fontWeight: '700' }}>🎯 Hero Section Content</label>
+                <label style={{ display: 'block', marginBottom: '6px', color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Site / Brand Name (shown in navbar)</label>
+                <input className="admin-input" type="text" value={settingsData.site_name || ''} onChange={(e) => setSettingsData({...settingsData, site_name: e.target.value})} placeholder="HIXX PLAYZ" style={{ marginBottom: '16px' }} />
+                <label style={{ display: 'block', marginBottom: '6px', color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Hero Title (e.g. HIXX PLAYZ)</label>
+                <input className="admin-input" type="text" value={settingsData.hero_title || ''} onChange={(e) => setSettingsData({...settingsData, hero_title: e.target.value})} placeholder="HIXX PLAYZ" />
+                <label style={{ display: 'block', marginBottom: '6px', color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Hero Description</label>
+                <textarea className="admin-input" value={settingsData.hero_description || ''} onChange={(e) => setSettingsData({...settingsData, hero_description: e.target.value})} placeholder="Making digital memories that last forever..." style={{ minHeight: '80px' }} />
+                <label style={{ display: 'block', marginBottom: '6px', color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Hero Eyebrow Text</label>
+                <input className="admin-input" type="text" value={settingsData.hero_eyebrow || ''} onChange={(e) => setSettingsData({...settingsData, hero_eyebrow: e.target.value})} placeholder="Genius · Playboy · Philanthropist · Leader" />
+              </div>
+
+              {/* ── SEO Logo ── */}
+              <div className="settings-group" style={{ padding: '20px', background: 'rgba(34,197,94,0.03)', borderRadius: '16px', border: '1px solid rgba(34,197,94,0.12)' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', color: '#4ade80', fontSize: '1rem', fontWeight: '700' }}>🔍 SEO Logo / OG Image</label>
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '12px' }}>This image will be used as the website favicon, Open Graph preview image, and Twitter card image.</p>
+                <div className="file-upload-container">
+                  <label className={`file-upload-label ${uploadingField === 'seo_logo_url' ? 'file-upload-label--active' : ''}`}>
+                    {uploadingField === 'seo_logo_url' ? <Loader2 className="spinner" size={18} /> : <Upload size={18} />}
+                    <span>{uploadingField === 'seo_logo_url' ? 'Uploading...' : 'Upload SEO Logo'}</span>
+                    <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, 'seo_logo_url')} />
+                  </label>
+                  <input className="admin-input" type="text" value={settingsData.seo_logo_url || ''} onChange={(e) => setSettingsData({...settingsData, seo_logo_url: e.target.value})} placeholder="Or paste image URL" />
+                  {settingsData.seo_logo_url && <img src={settingsData.seo_logo_url} alt="SEO Logo Preview" style={{ width: '64px', height: '64px', objectFit: 'contain', borderRadius: '8px', border: '1px solid var(--border-glass)' }} />}
+                </div>
+              </div>
+
               <div className="settings-group">
                 <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>About Section Text</label>
                 <textarea className="admin-input" value={settingsData.about_text || ''} onChange={(e) => setSettingsData({...settingsData, about_text: e.target.value})} placeholder="About me..." />
@@ -288,11 +310,6 @@ export default function AdminPage() {
                   </label>
                   <input className="admin-input" type="text" value={settingsData.bg_music_url || ''} onChange={(e) => setSettingsData({...settingsData, bg_music_url: e.target.value})} placeholder="Or paste audio URL" />
                 </div>
-              </div>
-
-              <div className="settings-group">
-                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Discord User ID</label>
-                <input className="admin-input" type="text" value={settingsData.discord_id || ''} onChange={(e) => setSettingsData({...settingsData, discord_id: e.target.value})} placeholder="Your Discord Snowflake ID" />
               </div>
 
               <div className="settings-group">

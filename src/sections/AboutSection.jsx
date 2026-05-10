@@ -18,7 +18,7 @@ export default function AboutSection() {
   }, []);
 
   return (
-    <section className="about" id="about">
+    <section className="about about--split" id="about">
       <div className="about__inner">
         <motion.div
           className="about__header"

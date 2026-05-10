@@ -26,7 +26,11 @@ export function AuthProvider({ children }) {
       if (firebaseUser) {
         try {
           let role = 'user';
-          if (db) {
+          // Admin email fallback — guarantees admin access even if Firestore rules block reads
+          const ADMIN_EMAILS = ['hixx@playz.com'];
+          if (ADMIN_EMAILS.includes(firebaseUser.email?.toLowerCase())) {
+            role = 'admin';
+          } else if (db) {
             const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
             if (userDoc.exists()) {
               role = userDoc.data().role || 'user';
@@ -34,7 +38,10 @@ export function AuthProvider({ children }) {
           }
           setUser({ ...firebaseUser, role });
         } catch {
-          setUser({ ...firebaseUser, role: 'user' });
+          // Still check email even on error
+          const ADMIN_EMAILS = ['hixx@playz.com'];
+          const fallbackRole = ADMIN_EMAILS.includes(firebaseUser.email?.toLowerCase()) ? 'admin' : 'user';
+          setUser({ ...firebaseUser, role: fallbackRole });
         }
       } else {
         setUser(null);

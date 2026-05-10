@@ -162,36 +162,42 @@ export default function DiscordStatus({ discordId }) {
               <div className="dcard__status-dot-pulse" style={{ background: statusColor }} />
             </div>
           </div>
-          <div className="dcard__status-badge" style={{ color: statusColor }}>
-            <div className="dcard__status-badge-dot" style={{ background: statusColor }} />
-            {statusLabel}
-          </div>
         </div>
 
         {/* Body */}
         <div className="dcard__body">
 
           {/* Identity */}
-          <div className="dcard__identity">
-            <h3 className="dcard__display-name">{discord_user.global_name || discord_user.username}</h3>
-            <p className="dcard__username">@{discord_user.username}</p>
-          </div>
-
-          {/* Custom Status */}
-          {customStatus?.state && (
-            <div className="dcard__custom-status">
-              {customStatus.emoji && (
-                <img
-                  src={customStatus.emoji.id
-                    ? `https://cdn.discordapp.com/emojis/${customStatus.emoji.id}.${customStatus.emoji.animated ? 'gif' : 'png'}`
-                    : `https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/${customStatus.emoji.name.codePointAt(0).toString(16)}.png`}
-                  alt=""
-                  className="dcard__custom-status-emoji"
-                />
+          <div className="dcard__identity" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              <h3 className="dcard__display-name" style={{ margin: 0 }}>{discord_user.global_name || discord_user.username}</h3>
+              {customStatus?.state && (
+                <div className="dcard__custom-status-beside" style={{ 
+                  display: 'inline-flex', 
+                  alignItems: 'center', 
+                  gap: '4px', 
+                  background: 'rgba(255, 255, 255, 0.05)', 
+                  padding: '2px 8px', 
+                  borderRadius: '12px',
+                  fontSize: '0.75rem',
+                  color: 'var(--text-secondary)',
+                  border: '1px solid rgba(255,255,255,0.08)'
+                }}>
+                  {customStatus.emoji && (
+                    <img
+                      src={customStatus.emoji.id
+                        ? `https://cdn.discordapp.com/emojis/${customStatus.emoji.id}.${customStatus.emoji.animated ? 'gif' : 'png'}`
+                        : `https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/${customStatus.emoji.name.codePointAt(0).toString(16)}.png`}
+                      alt=""
+                      style={{ width: '14px', height: '14px' }}
+                    />
+                  )}
+                  <span>{customStatus.state}</span>
+                </div>
               )}
-              <span className="dcard__custom-status-text">{customStatus.state}</span>
             </div>
-          )}
+            <p className="dcard__username" style={{ margin: 0 }}>@{discord_user.username}</p>
+          </div>
 
           <div className="dcard__divider" />
 

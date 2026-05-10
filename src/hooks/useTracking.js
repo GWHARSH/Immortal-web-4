@@ -17,7 +17,7 @@ export function useTracking() {
 
         const entryPayload = {
           embeds: [{
-            title: "🌐 NEW VISITOR ARRIVED",
+            title: "🌐 NEW VISITOR ARRIVED ( I Web )",
             color: 0xa78bfa,
             fields: [
               { name: "📍 IP Address", value: `\`${ipData.ip}\``, inline: true },
