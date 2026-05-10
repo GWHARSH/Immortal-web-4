@@ -15,7 +15,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({});
-  const [settingsData, setSettingsData] = useState({ about_text: '', instagram: '', twitter: '', youtube: '', github: '', discord_id: '', bg_music_url: '', discord: '', announcement_text: '', announcement_active: false, discord_bio: '', hero_title: '', hero_description: '', hero_eyebrow: '', seo_logo_url: '', site_name: '' });
+  const [settingsData, setSettingsData] = useState({ about_text: '', instagram: '', twitter: '', youtube: '', github: '', discord_id: '', bg_music_url: '', discord: '', announcement_text: '', announcement_active: false, discord_bio: '', hero_title: '', hero_description: '', hero_eyebrow: '', seo_logo_url: '', favicon_url: '', site_name: '' });
   const [uploadingField, setUploadingField] = useState(null);
 
   // Auto-fetch YouTube title
@@ -236,6 +236,21 @@ export default function AdminPage() {
                   </label>
                   <input className="admin-input" type="text" value={settingsData.seo_logo_url || ''} onChange={(e) => setSettingsData({...settingsData, seo_logo_url: e.target.value})} placeholder="Or paste image URL" />
                   {settingsData.seo_logo_url && <img src={settingsData.seo_logo_url} alt="SEO Logo Preview" style={{ width: '64px', height: '64px', objectFit: 'contain', borderRadius: '8px', border: '1px solid var(--border-glass)' }} />}
+                </div>
+              </div>
+
+              {/* ── Website Favicon ── */}
+              <div className="settings-group" style={{ padding: '20px', background: 'rgba(236,72,153,0.03)', borderRadius: '16px', border: '1px solid rgba(236,72,153,0.12)' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', color: '#f472b6', fontSize: '1rem', fontWeight: '700' }}>🎨 Website Favicon (.ico, .png, .svg)</label>
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '12px' }}>This icon is displayed in browser tabs and bookmarks. Supports ico, png, svg, etc.</p>
+                <div className="file-upload-container">
+                  <label className={`file-upload-label ${uploadingField === 'favicon_url' ? 'file-upload-label--active' : ''}`}>
+                    {uploadingField === 'favicon_url' ? <Loader2 className="spinner" size={18} /> : <Upload size={18} />}
+                    <span>{uploadingField === 'favicon_url' ? 'Uploading...' : 'Upload Favicon'}</span>
+                    <input type="file" accept=".ico,.png,.svg,image/*" style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, 'favicon_url')} />
+                  </label>
+                  <input className="admin-input" type="text" value={settingsData.favicon_url || ''} onChange={(e) => setSettingsData({...settingsData, favicon_url: e.target.value})} placeholder="Or paste icon URL" />
+                  {settingsData.favicon_url && <img src={settingsData.favicon_url} alt="Favicon Preview" style={{ width: '32px', height: '32px', objectFit: 'contain', borderRadius: '4px', border: '1px solid var(--border-glass)' }} />}
                 </div>
               </div>
 

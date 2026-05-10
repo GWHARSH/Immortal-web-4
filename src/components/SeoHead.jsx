@@ -45,11 +45,16 @@ export default function SeoHead() {
     updateMeta('twitter:title', `${heroTitle} - Immortal from Demi Gods`, 'property');
     updateMeta('twitter:description', seoDesc, 'property');
 
-    // Update favicon if SEO logo provided
-    if (logoUrl) {
-      const existingFavicon = document.querySelector('link[rel="icon"]');
-      if (existingFavicon) {
-        existingFavicon.href = logoUrl;
+    // Update favicon with separate favicon_url or fallback
+    const faviconUrl = settings.favicon_url || logoUrl || '/favicon.svg';
+    const existingFavicon = document.querySelector('link[rel="icon"]');
+    if (existingFavicon) {
+      existingFavicon.href = faviconUrl;
+      if (faviconUrl.endsWith('.svg') || faviconUrl.startsWith('data:image/svg+xml')) {
+        existingFavicon.type = 'image/svg+xml';
+      } else if (faviconUrl.endsWith('.ico') || faviconUrl.startsWith('data:image/x-icon') || faviconUrl.includes('image/vnd.microsoft.icon') || faviconUrl.includes('x-icon')) {
+        existingFavicon.type = 'image/x-icon';
+      } else {
         existingFavicon.type = 'image/png';
       }
     }
