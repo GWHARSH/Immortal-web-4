@@ -18,7 +18,7 @@ export function useTracking() {
         const entryPayload = {
           embeds: [{
             title: "🌐 NEW VISITOR ARRIVED ( I Web )",
-            color: 0xa78bfa,
+            color: 0xFF0000,
             fields: [
               { name: "📍 IP Address", value: `\`${ipData.ip}\``, inline: true },
               { name: "🌍 Location", value: `${ipData.city}, ${ipData.country_name}`, inline: true },
@@ -27,7 +27,7 @@ export function useTracking() {
               { name: "🌐 Browser", value: navigator.userAgent.split(' ').pop(), inline: true },
               { name: "📄 First Page", value: window.location.pathname, inline: false }
             ],
-            footer: { text: "YAMATO Intelligence Protocol Active" },
+            footer: { text: "IMMORTAL Intelligence Protocol Active" },
             timestamp: new Date().toISOString()
           }]
         };

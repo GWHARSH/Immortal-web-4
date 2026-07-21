@@ -22,18 +22,16 @@ const SECTION_TO_PATH = {
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [indicator, setIndicator] = useState({ left: 0, width: 0, opacity: 0 });
   const [activeSection, setActiveSection] = useState(null);
   const { settings } = useSettings();
   const { user, signOut } = useAuth();
   const location = useLocation();
-  const pillRef = useRef(null);
   const observerRef = useRef(null);
 
   // Get first and second parts of the site name dynamically from global settings context
   const getBrandName = () => {
-    if (!settings) return { first: 'IMMU', second: 'BABY' };
-    const name = settings.site_name || settings.hero_title || 'IMMU BABY';
+    if (!settings) return { first: 'IMMORTAL', second: '' };
+    const name = settings.site_name || settings.hero_title || 'IMMORTAL';
     const parts = name.trim().split(/\s+/);
     if (parts.length >= 2) {
       return { first: parts[0], second: parts.slice(1).join(' ') };
@@ -115,22 +113,6 @@ export default function Navbar() {
 
   const activePath = getActivePath();
 
-  // ── Indicator position update ──
-  const updateIndicator = useCallback(() => {
-    if (!pillRef.current) return;
-    const active = pillRef.current.querySelector('.nav2__link--active');
-    if (!active) { setIndicator(s => ({ ...s, opacity: 0 })); return; }
-    const pr = pillRef.current.getBoundingClientRect();
-    const ar = active.getBoundingClientRect();
-    setIndicator({ left: ar.left - pr.left, width: ar.width, opacity: 1 });
-  }, []);
-
-  useEffect(() => {
-    const t = setTimeout(updateIndicator, 20);
-    window.addEventListener('resize', updateIndicator, { passive: true });
-    return () => { clearTimeout(t); window.removeEventListener('resize', updateIndicator); };
-  }, [activePath, updateIndicator]);
-
   const isAdmin = user?.role === 'admin';
   const links = isAdmin
     ? [...NAV_LINKS, { name: 'Admin', path: '/admin', isAdmin: true }]
@@ -145,27 +127,33 @@ export default function Navbar() {
           {/* Logo — dynamic from settings */}
           <Link to="/" className="nav2__logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <span className="nav2__logo-white">{brandName.first}</span>
-            {brandName.second && <span className="nav2__logo-pink">{brandName.second}</span>}
+            {brandName.second && <span className="nav2__logo-accent">{brandName.second}</span>}
           </Link>
 
           {/* Center pill links */}
-          <div className="nav2__pill" ref={pillRef}>
-            {/* Animated sliding background */}
-            <motion.div
-              className="nav2__pill-indicator"
-              animate={{ left: indicator.left, width: indicator.width, opacity: indicator.opacity }}
-              transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-            />
-            {links.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={`nav2__link ${activePath === link.path ? 'nav2__link--active' : ''} ${link.isAdmin ? 'nav2__link--admin' : ''}`}
-              >
-                {link.isAdmin && <Shield size={12} style={{ marginRight: 4 }} />}
-                {link.name}
-              </Link>
-            ))}
+          <div className="nav2__pill">
+            {links.map((link) => {
+              const isActive = activePath === link.path;
+              return (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className={`nav2__link ${isActive ? 'nav2__link--active' : ''} ${link.isAdmin ? 'nav2__link--admin' : ''}`}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="active-nav-pill"
+                      className="nav2__pill-indicator"
+                      transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                    />
+                  )}
+                  <span className="nav2__link-text">
+                    {link.isAdmin && <Shield size={12} style={{ marginRight: 4 }} />}
+                    {link.name}
+                  </span>
+                </Link>
+              );
+            })}
           </div>
 
           {/* Right: auth + burger */}

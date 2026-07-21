@@ -26,8 +26,8 @@ export default function Footer() {
   };
 
   const brandName = (() => {
-    if (!settings) return { first: 'IMMU', second: 'BABY' };
-    const name = settings.site_name || settings.hero_title || 'IMMU BABY';
+    if (!settings) return { first: 'IMMORTAL', second: '' };
+    const name = settings.site_name || settings.hero_title || 'IMMORTAL';
     const parts = name.trim().split(/\s+/);
     if (parts.length >= 2) {
       return { first: parts[0], second: parts.slice(1).join(' ') };

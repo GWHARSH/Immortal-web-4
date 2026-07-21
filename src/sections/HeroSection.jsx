@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Volume2, VolumeX } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
+import { forceHttps } from '../utils/security';
 import heroImg from '/hero-f1.jpg';
 
 // ── Shared social icons map ──────────────────────────────────
@@ -81,9 +82,9 @@ function StyleApex({ socials, onSocialClick, scrollDown, heroContent }) {
           {heroContent.eyebrow}
         </p>
 
+        <p className="hs__greeting">hi i am</p>
         <h1 className="hs__title hs__title--apex">
-          <span className="hs__t-white">{heroContent.titleFirst}</span>
-          <span className="hs__t-accent"> {heroContent.titleLast}</span>
+          <span className="hs__t-gradient">{heroContent.titleFirst} {heroContent.titleLast}</span>
         </h1>
 
         <div className="hs__apex-rule" />
@@ -124,16 +125,16 @@ export default function HeroSection() {
     discord: settings ? parseSocials(settings.discord) : [],
   };
 
-  const bgMusic = settings?.bg_music_url || '/bg-music.mp3';
+  const bgMusic = forceHttps(settings?.bg_music_url) || '/bg-music.mp3';
 
   const heroContent = {
-    title: settings?.hero_title || 'IMMU BABY',
+    title: settings?.hero_title || 'IMMORTAL',
     description: settings?.hero_description || '',
     eyebrow: settings?.hero_eyebrow || '',
   };
 
   // Parse title into first/last parts
-  const titleParts = (heroContent.title || 'HIXX PLAYZ').trim().split(/\s+/);
+  const titleParts = (heroContent.title || 'IMMORTAL').trim().split(/\s+/);
   const titleLast = titleParts.length > 1 ? titleParts.pop() : '';
   const titleFirst = titleParts.join(' ');
   const parsedHero = {
@@ -162,22 +163,7 @@ export default function HeroSection() {
     <section className="hero-wrapper" id="hero">
       <StyleApex socials={socials} onSocialClick={handleSocialClick} scrollDown={scrollDown} heroContent={parsedHero} />
 
-      {/* ── Music toggle ── */}
-      <div className="music-toggle">
-        <audio ref={audioRef} src={bgMusic} loop />
-        <div className="music-toggle__controls">
-          <button className="music-toggle__btn" onClick={toggleMusic} aria-label="Toggle Music">
-            {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-          </button>
-          <div className="music-toggle__slider-wrap">
-            <input
-              type="range" min="0" max="1" step="0.01" defaultValue="0.5"
-              className="music-toggle__slider"
-              onChange={(e) => { if (audioRef.current) audioRef.current.volume = e.target.value; }}
-            />
-          </div>
-        </div>
-      </div>
+
 
       {/* ── Social link modal ── */}
       <AnimatePresence>

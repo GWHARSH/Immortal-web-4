@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 import { ExternalLink, ChevronDown, Music, Gamepad2, Info } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
+import { forceHttps } from '../utils/security';
 
 const StatusColors = {
   online: '#23a55a',
@@ -149,8 +150,8 @@ export default function DiscordStatus({ discordId }) {
     ? `https://cdn.discordapp.com/avatars/${discord_user.id}/${discord_user.avatar}${discord_user.avatar.startsWith('a_') ? '.gif' : '.png'}?size=256`
     : `https://cdn.discordapp.com/embed/avatars/${parseInt(discord_user.discriminator || '0') % 5}.png`;
 
-  const bannerUrl = settings?.custom_banner_url || (discord_user.banner
-    ? (discord_user.banner.startsWith('http') ? discord_user.banner : `https://cdn.discordapp.com/banners/${discord_user.id}/${discord_user.banner}${discord_user.banner.startsWith('a_') ? '.gif' : '.png'}?size=600`)
+  const bannerUrl = forceHttps(settings?.custom_banner_url) || (discord_user.banner
+    ? (discord_user.banner.startsWith('http') ? forceHttps(discord_user.banner) : `https://cdn.discordapp.com/banners/${discord_user.id}/${discord_user.banner}${discord_user.banner.startsWith('a_') ? '.gif' : '.png'}?size=600`)
     : null);
 
   const bannerColor = discord_user.banner_color || '#1a0a1e';
@@ -190,7 +191,7 @@ export default function DiscordStatus({ discordId }) {
         </div>
 
         {/* Avatar Section */}
-        <div className="dcard__avatar-row">
+        <div className="dcard__avatar-row" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-start', padding: '0 16px' }}>
           <div className="dcard__avatar-wrap">
             <div className="dcard__avatar-ring" style={{ '--ring-color': statusColor }} />
             <img src={avatarUrl} alt={discord_user.username} className="dcard__avatar" />
@@ -209,40 +210,39 @@ export default function DiscordStatus({ discordId }) {
 
         {/* Body */}
         <div className="dcard__body">
-
-          {/* Identity */}
-          <div className="dcard__identity" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <h3 className="dcard__display-name" style={{ margin: 0 }}>{discord_user.global_name || discord_user.username}</h3>
-              {customStatus?.state && (
-                <div className="dcard__custom-status-beside" style={{ 
-                  display: 'inline-flex', 
-                  alignItems: 'center', 
-                  gap: '4px', 
-                  background: 'rgba(255, 255, 255, 0.05)', 
-                  padding: '2px 8px', 
-                  borderRadius: '12px',
-                  fontSize: '0.75rem',
-                  color: 'var(--text-secondary)',
-                  border: '1px solid rgba(255,255,255,0.08)'
-                }}>
-                  {customStatus.emoji && (
-                    <img
-                      src={customStatus.emoji.id
-                        ? `https://cdn.discordapp.com/emojis/${customStatus.emoji.id}.${customStatus.emoji.animated ? 'gif' : 'png'}`
-                        : `https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/${customStatus.emoji.name.codePointAt(0).toString(16)}.png`}
-                      alt=""
-                      style={{ width: '14px', height: '14px' }}
-                    />
-                  )}
-                  <span>{customStatus.state}</span>
-                </div>
-              )}
-            </div>
-            <p className="dcard__username" style={{ margin: 0 }}>@{discord_user.username}</p>
+          {/* Identity Below PFP, Left Aligned */}
+          <div className="dcard__identity" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px', marginBottom: '16px' }}>
+            <h3 className="dcard__display-name" style={{ margin: 0, textAlign: 'left', fontSize: '1.4rem' }}>{discord_user.global_name || discord_user.username}</h3>
+            <p className="dcard__username" style={{ margin: 0, textAlign: 'left', opacity: 0.7 }}>@{discord_user.username}</p>
+            
+            {customStatus?.state && (
+              <div className="dcard__custom-status-below" style={{ 
+                marginTop: '6px',
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                gap: '6px', 
+                background: 'rgba(255, 255, 255, 0.05)', 
+                padding: '4px 10px', 
+                borderRadius: '10px',
+                fontSize: '0.75rem',
+                color: 'var(--text-secondary)',
+                border: '1px solid rgba(255,255,255,0.06)'
+              }}>
+                {customStatus.emoji && (
+                  <img
+                    src={customStatus.emoji.id
+                      ? `https://cdn.discordapp.com/emojis/${customStatus.emoji.id}.${customStatus.emoji.animated ? 'gif' : 'png'}`
+                      : `https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/${customStatus.emoji.name.codePointAt(0).toString(16)}.png`}
+                    alt=""
+                    style={{ width: '14px', height: '14px' }}
+                  />
+                )}
+                <span>{customStatus.state}</span>
+              </div>
+            )}
           </div>
 
-          <div className="dcard__divider" />
+          <div className="dcard__divider" style={{ marginTop: '0' }} />
 
           {/* About Me */}
           <div className="dcard__section">

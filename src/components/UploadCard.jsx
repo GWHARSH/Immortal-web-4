@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Calendar, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { forceHttps } from '../utils/security';
 
 const getYoutubeId = (url) => {
   if (!url) return null;
@@ -11,7 +12,7 @@ const getYoutubeId = (url) => {
 
 export default function UploadCard({ upload, index = 0 }) {
   const ytId = getYoutubeId(upload.youtube_url);
-  const imageUrl = upload.thumbnail || (ytId ? `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg` : `https://picsum.photos/seed/${upload.id}/600/400`);
+  const imageUrl = forceHttps(upload.thumbnail) || (ytId ? `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg` : `https://picsum.photos/seed/${upload.id}/600/400`);
 
   return (
     <motion.div

@@ -28,10 +28,10 @@ Apply a premium, cyber-luxurious aesthetic designed to stun visitors at first si
   - Primary Background: `#0a0a0f` (Ultra dark navy-black)
   - Secondary Background: `#12121a`
   - Glass Card: `rgba(255,255,255,0.04)` (with a delicate `rgba(255,255,255,0.08)` border and blur)
-  - Accent Color: `#a78bfa` (Vibrant electric lavender)
-  - Accent Bright: `#c4b5fd`
-  - Accent Dim: `#7c3aed`
-  - Accent Glow: `rgba(167,139,250,0.25)`
+  - Accent Color: `#FF0000` (Vibrant red)
+  - Accent Bright: `#FF3333`
+  - Accent Dim: `#CC0000`
+  - Accent Glow: `rgba(255,0,0,0.25)`
   - Text Primary: `#f0f0f5` (Ice white)
   - Text Secondary: `#8a8a9a` (Warm grey)
   - Text Muted: `#55556a`
@@ -169,5 +169,5 @@ Provide fallback client objects inside `supabase.js` so that if environment vari
 
 ---
 
-Produce clean, complete, fully-documented, modern React code adhering strictly to premium UI/UX guidelines and securing Yamato Security Protocols.
+Produce clean, complete, fully-documented, modern React code adhering strictly to premium UI/UX guidelines and securing Immortal Security Protocols.
 ```

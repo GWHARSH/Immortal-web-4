@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // ══════════════════════════════════════════════════════════════════
-//  YAMATO BOT SHIELD — Server-side middleware
+//  IMMORTAL BOT SHIELD — Server-side middleware
 //  Intercepts ALL requests before files are served.
 //  Catches: HTTrack, wget, curl, Scrapy, Python, Go clients,
 //           headless browsers, SEO crawlers, AI scrapers, archiver bots.
@@ -24,7 +24,7 @@ const TROLL_HTML = (() => {
       style="background:#020204;color:#f472b6;font-family:monospace;display:flex;
              align-items:center;justify-content:center;min-height:100vh;margin:0;text-align:center">
       <div><h1 style="font-size:4rem">💀</h1><h2>GG NO RE SKID</h2>
-      <p style="color:#6a6a7a">Protected by YAMATO Security Protocol v5.0</p></div>
+      <p style="color:#6a6a7a">Protected by IMMORTAL Security Protocol v5.0</p></div>
     </body></html>`;
   }
 })();
@@ -55,20 +55,33 @@ const HARD_BLOCK_UA = [
 const SOFT_BLOCK_UA = [
   // SEO / data bots (block in production)
   'ahrefsbot', 'semrushbot', 'mj12bot', 'dotbot', 'blexbot',
-  'petalbot', 'dataforseobot', 'bytespider',
+  'petalbot', 'dataforseobot', 'bytespider', 'yisouspider',
   // AI crawlers
   'claudebot', 'gptbot', 'chatgpt-user', 'ccbot', 'anthropic-ai',
-  'omgili', 'diffbot', 'proximic',
+  'omgili', 'diffbot', 'proximic', 'perplexitybot', 'cohere-ai',
+  'facebookexternalhit', 'meta-externalagent',
   // Archive / mirror bots
   'ia_archiver', 'archive.org_bot', 'webarchive',
   // Generic aggressive crawlers
-  'screaming frog', 'spider', 'crawler',
+  'screaming frog', 'spider', 'crawler', 'robot', 'bot/',
 ];
 
 // ── Allowed bots (search engines — don't block for SEO) ──────────
 const ALLOWED_UA = ['googlebot', 'bingbot', 'duckduckbot', 'yandexbot', 'baiduspider'];
 
-// ── The detection function ────────────────────────────────────────
+function isModernBrowserUA(ua) {
+  return /(chrome|crios|firefox|fxios|edg|edge|safari|opr|opera|vivaldi|samsungbrowser|ucbrowser|silk)/i.test(ua) &&
+    !/(headless|phantomjs|curl|wget|bot|spider|crawler|python|java|okhttp|ruby|go-http-client|node-fetch|axios|superagent|libwww)/i.test(ua);
+}
+
+function hasBrowserNavigationFingerprint(req) {
+  return Boolean(
+    req.headers['accept-language'] &&
+    req.headers['accept-encoding'] &&
+    (req.headers['sec-fetch-mode'] || req.headers['sec-ch-ua'] || req.headers['sec-ch-ua-mobile'])
+  );
+}
+
 function isHostileClient(req) {
   const ua = (req.headers['user-agent'] || '').toLowerCase();
   const host = (req.headers.host || '').toLowerCase();
@@ -112,24 +125,22 @@ function isHostileClient(req) {
     // SEO/AI/archiver bots
     if (SOFT_BLOCK_UA.some(p => ua.includes(p))) return true;
 
-    // Navigation fingerprint: real browsers ALWAYS send these three headers
-    // for page navigations. Scrapers that spoof the UA usually miss sec-fetch-mode.
+    // Navigation fingerprint: real browsers usually send these headers.
+    // Some mobile and embedded browsers may omit sec-fetch-mode but still
+    // include accept-language / accept-encoding and modern browser identifiers.
     const isNavRequest =
       url === '/' ||
       (accept.includes('text/html') && accept.includes('application/xhtml'));
 
     if (isNavRequest) {
-      const hasBrowserFingerprint =
-        req.headers['accept-language'] &&
-        req.headers['accept-encoding'] &&
-        req.headers['sec-fetch-mode'];
-      if (!hasBrowserFingerprint) return true;
+      const hasBrowserFingerprint = hasBrowserNavigationFingerprint(req);
+      if (!hasBrowserFingerprint && !isModernBrowserUA(ua)) return true;
     }
 
     // Direct asset pulls without a browser Referer = likely a scraper
-    // downloading individual files rather than browsing through the page.
+    // downloading files rather than browsing through the page.
     const isAssetReq = /\.(js|css|jsx|ts)(\?|$)/.test(url);
-    if (isAssetReq && !req.headers['referer'] && !req.headers['sec-fetch-dest']) {
+    if (isAssetReq && !req.headers['referer'] && !req.headers['sec-fetch-dest'] && !req.headers['sec-ch-ua']) {
       return true;
     }
   }
@@ -138,34 +149,34 @@ function isHostileClient(req) {
 }
 
 // ── The middleware factory ────────────────────────────────────────
-function yamatoBotShieldMiddleware(req, res, next) {
+function immortalBotShieldMiddleware(req, res, next) {
   if (!isHostileClient(req)) { next(); return; }
 
   const ua = req.headers['user-agent'] || 'unknown';
   const ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '?';
-  console.log(`[YAMATO] Blocked: ${ip} — UA: ${ua.slice(0, 80)}`);
+  console.log(`[IMMORTAL] Blocked: ${ip} — UA: ${ua.slice(0, 80)}`);
 
   res.writeHead(403, {
     'Content-Type': 'text/html; charset=utf-8',
     'Cache-Control': 'no-store, no-cache, must-revalidate',
     'X-Robots-Tag': 'noindex, noarchive, nosnippet, noodp, noimageindex',
-    'X-Yamato-Shield': 'BLOCKED',
+    'X-Immortal-Shield': 'BLOCKED',
     'X-Frame-Options': 'DENY',
   });
   res.end(TROLL_HTML);
 }
 
 // ── Vite plugin that installs the middleware ──────────────────────
-function yamatoBotShieldPlugin() {
+function immortalBotShieldPlugin() {
   return {
-    name: 'yamato-bot-shield',
+    name: 'immortal-bot-shield',
     // Dev server
     configureServer(server) {
-      server.middlewares.use(yamatoBotShieldMiddleware);
+      server.middlewares.use(immortalBotShieldMiddleware);
     },
     // Production preview server
     configurePreviewServer(server) {
-      server.middlewares.use(yamatoBotShieldMiddleware);
+      server.middlewares.use(immortalBotShieldMiddleware);
     },
   };
 }
@@ -176,12 +187,12 @@ export default defineConfig({
     react(),
 
     // ── Bot shield runs FIRST (before static file serving) ──────
-    yamatoBotShieldPlugin(),
+    immortalBotShieldPlugin(),
 
     // ── JavaScript Obfuscation (build only) ──────────────────────
     obfuscator({
-      include: [/src\/components\/DevToolsBlocker\.jsx$/],
-      exclude: [/node_modules/],
+      include: [/src\/.*\.jsx?$/],
+      exclude: [/node_modules/, /main\.jsx$/],
       apply: 'build',
       options: {
         compact: true,

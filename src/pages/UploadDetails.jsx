@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Calendar, Eye, Play } from 'lucide-react';
 import PremiumLoader from '../components/PremiumLoader';
+import { forceHttps } from '../utils/security';
 
 const getYoutubeId = (url) => {
   if (!url) return null;
@@ -57,7 +58,7 @@ export default function UploadDetails() {
 
   const ytId = getYoutubeId(upload.youtube_url);
   const isMp4 = upload.download_url && upload.download_url.toLowerCase().endsWith('.mp4');
-  const imageUrl = upload.thumbnail || (ytId ? `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg` : `https://picsum.photos/seed/${upload.id}/1200/600`);
+  const imageUrl = forceHttps(upload.thumbnail) || (ytId ? `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg` : `https://picsum.photos/seed/${upload.id}/1200/600`);
 
   return (
     <main className="page" style={{ paddingTop: '100px' }}>
@@ -80,11 +81,11 @@ export default function UploadDetails() {
           ) : isMp4 ? (
             <div style={{ borderRadius: 'var(--radius-lg)', overflow: 'hidden', marginBottom: '32px', border: '1px solid var(--border-glass)', background: '#000' }}>
                <video 
-                src={upload.download_url} 
+                src={forceHttps(upload.download_url)} 
                 controls 
                 playsInline
                 style={{ width: '100%', display: 'block', maxHeight: '70vh' }} 
-                poster={upload.thumbnail}
+                poster={forceHttps(upload.thumbnail)}
               />
             </div>
           ) : (

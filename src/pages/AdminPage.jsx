@@ -134,16 +134,33 @@ export default function AdminPage() {
     setUploadingField(fieldName);
     
     try {
-      const compressedBase64 = await compressImage(file);
+      let finalValue;
+      
+      // Upload EVERYTHING to Supabase Storage
+      // Use a folder prefix to prevent name collisions while keeping the original filename intact
+      const filePath = `uploads/${Date.now()}/${file.name}`;
+      const { error: uploadError } = await supabase.storage.from('files').upload(filePath, file);
+      
+      if (uploadError) throw uploadError;
+      
+      const { data } = supabase.storage.from('files').getPublicUrl(filePath);
+      finalValue = data.publicUrl;
+
       if (activeTab === 'settings') {
-        setSettingsData(prev => ({ ...prev, [fieldName]: compressedBase64 }));
+        setSettingsData(prev => ({ ...prev, [fieldName]: finalValue }));
       } else {
-        setFormData(prev => ({ ...prev, [fieldName]: compressedBase64 }));
+        setFormData(prev => ({ ...prev, [fieldName]: finalValue }));
       }
-      show('Image uploaded and compressed successfully!', 'success');
+      
+      show('File processed successfully!', 'success');
       setUploadingField(null);
     } catch (err) {
-      show('Upload & compression failed: ' + err.message, 'error');
+      console.error('Detailed Upload Error:', err);
+      let errorMsg = err.message || 'Unknown error';
+      if (errorMsg === 'Failed to fetch') {
+        errorMsg = 'Connection refused. Check your Supabase URL, CORS settings (allow http://localhost:5000), and ensure the "files" bucket is Public.';
+      }
+      show('Upload failed: ' + errorMsg, 'error');
       setUploadingField(null);
     }
   };
@@ -249,9 +266,9 @@ export default function AdminPage() {
               <div className="settings-group" style={{ padding: '20px', background: 'rgba(244,114,182,0.03)', borderRadius: '16px', border: '1px solid rgba(244,114,182,0.12)' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', color: 'var(--accent)', fontSize: '1rem', fontWeight: '700' }}>🎯 Hero Section Content</label>
                 <label style={{ display: 'block', marginBottom: '6px', color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Site / Brand Name (shown in navbar)</label>
-                <input className="admin-input" type="text" value={settingsData.site_name || ''} onChange={(e) => setSettingsData({...settingsData, site_name: e.target.value})} placeholder="HIXX PLAYZ" style={{ marginBottom: '16px' }} />
-                <label style={{ display: 'block', marginBottom: '6px', color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Hero Title (e.g. HIXX PLAYZ)</label>
-                <input className="admin-input" type="text" value={settingsData.hero_title || ''} onChange={(e) => setSettingsData({...settingsData, hero_title: e.target.value})} placeholder="HIXX PLAYZ" />
+                <input className="admin-input" type="text" value={settingsData.site_name || ''} onChange={(e) => setSettingsData({...settingsData, site_name: e.target.value})} placeholder="IMMORTAL" style={{ marginBottom: '16px' }} />
+                <label style={{ display: 'block', marginBottom: '6px', color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Hero Title (e.g. IMMORTAL)</label>
+                <input className="admin-input" type="text" value={settingsData.hero_title || ''} onChange={(e) => setSettingsData({...settingsData, hero_title: e.target.value})} placeholder="IMMORTAL" />
                 <label style={{ display: 'block', marginBottom: '6px', color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Hero Description</label>
                 <textarea className="admin-input" value={settingsData.hero_description || ''} onChange={(e) => setSettingsData({...settingsData, hero_description: e.target.value})} placeholder="Making digital memories that last forever..." style={{ minHeight: '80px' }} />
                 <label style={{ display: 'block', marginBottom: '6px', color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Hero Eyebrow Text</label>
@@ -290,7 +307,7 @@ export default function AdminPage() {
 
               {/* ── Custom Discord Banner ── */}
               <div className="settings-group" style={{ padding: '20px', background: 'rgba(124,58,237,0.03)', borderRadius: '16px', border: '1px solid rgba(124,58,237,0.12)' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', color: '#a78bfa', fontSize: '1rem', fontWeight: '700' }}>🆔 Custom Profile Banner Fallback</label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', color: '#FF3333', fontSize: '1rem', fontWeight: '700' }}>🆔 Custom Profile Banner Fallback</label>
                 <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '12px' }}>Upload a custom image to use as your Discord card background banner. This serves as a guaranteed fallback if the live Discord API is rate-limited or fails to load.</p>
                 <div className="file-upload-container">
                   <label className={`file-upload-label ${uploadingField === 'custom_banner_url' ? 'file-upload-label--active' : ''}`}>
@@ -339,7 +356,7 @@ export default function AdminPage() {
                           />
                           <button 
                             className="btn btn--outline" 
-                            style={{ padding: '8px', color: '#ef4444' }} 
+                            style={{ padding: '8px', color: '#FF0000' }} 
                             onClick={() => {
                               const newLinks = platformLinks.filter((_, i) => i !== idx);
                               setSettingsData({...settingsData, [platform]: JSON.stringify(newLinks)});
@@ -386,7 +403,7 @@ export default function AdminPage() {
                 <textarea className="admin-input" value={settingsData.discord_bio || ''} onChange={(e) => setSettingsData({...settingsData, discord_bio: e.target.value})} placeholder="Crafting digital experiences..." style={{ minHeight: '80px' }} />
               </div>
 
-              <div className="settings-group" style={{ padding: '20px', background: 'rgba(167,139,250,0.03)', borderRadius: '16px', border: '1px solid rgba(167,139,250,0.15)' }}>
+              <div className="settings-group" style={{ padding: '20px', background: 'rgba(255,0,0,0.03)', borderRadius: '16px', border: '1px solid rgba(255,0,0,0.15)' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', color: 'var(--accent)', fontSize: '1rem', fontWeight: '700' }}>
                   <Megaphone size={20} /> Announcement
                 </label>
@@ -396,7 +413,7 @@ export default function AdminPage() {
                       type="checkbox" 
                       checked={settingsData.announcement_active || false} 
                       onChange={(e) => setSettingsData({...settingsData, announcement_active: e.target.checked})}
-                      style={{ width: '18px', height: '18px', accentColor: '#a78bfa', cursor: 'pointer' }}
+                      style={{ width: '18px', height: '18px', accentColor: '#FF3333', cursor: 'pointer' }}
                     />
                     Show announcement popup
                   </label>
@@ -451,7 +468,7 @@ export default function AdminPage() {
                           {formData.download_url && (
                             <div className="file-preview-strip">
                               <div className="file-preview-name">
-                                {formData.download_url.split('/').pop().split('-').slice(0, -1).join('-') || 'Current File'}
+                                {formData.download_url.split('/').pop() || 'Current File'}
                               </div>
                               <div className="file-preview-status">
                                 <Check size={14} /> Ready
@@ -509,7 +526,7 @@ export default function AdminPage() {
                                   {formData.download_url && (
                                     <div className="file-preview-strip">
                                       <div className="file-preview-name">
-                                        {formData.download_url.split('/').pop().split('-').slice(0, -1).join('-') || 'Current File'}
+                                        {formData.download_url.split('/').pop() || 'Current File'}
                                       </div>
                                       <div className="file-preview-status">
                                         <Check size={14} /> Ready
@@ -538,7 +555,7 @@ export default function AdminPage() {
                       </div>
                       <div className="admin-item__actions">
                         <button className="btn btn--outline" onClick={() => handleEdit(item)}>Edit</button>
-                        <button className="btn btn--outline" style={{ color: '#ef4444', borderColor: 'rgba(239,68,68,0.3)' }} onClick={() => handleDelete(item.id)}>
+                        <button className="btn btn--outline" style={{ color: '#FF0000', borderColor: 'rgba(255,68,68,0.35)' }} onClick={() => handleDelete(item.id)}>
                           <Trash2 size={16} />
                         </button>
                       </div>

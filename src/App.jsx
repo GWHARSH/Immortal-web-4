@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { SettingsProvider } from './context/SettingsContext';
@@ -11,21 +12,38 @@ import AdminPage from './pages/AdminPage';
 import UploadDetails from './pages/UploadDetails';
 import PackageDetails from './pages/PackageDetails';
 import { NotificationProvider } from './context/NotificationContext';
-import DevToolsBlocker from './components/DevToolsBlocker';
 import AnnouncementPopup from './components/AnnouncementPopup';
+import GlobalAudioPlayer from './components/GlobalAudioPlayer';
 import ScrollToTop from './components/ScrollToTop';
 import SeoHead from './components/SeoHead';
 import { useTracking } from './hooks/useTracking';
-import { useAntiBot } from './hooks/useAntiBot';
 import { useGlobalScrollReveal } from './hooks/useScrollReveal';
 import './index.css';
 
 function AppInner() {
   useTracking();
-  useAntiBot();
   useGlobalScrollReveal();
+
+  useEffect(() => {
+    let rafId;
+    const handleMouseMove = (e) => {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        const x = (e.clientX / window.innerWidth) * 100;
+        const y = (e.clientY / window.innerHeight) * 100;
+        document.documentElement.style.setProperty('--mouse-x', `${x}%`);
+        document.documentElement.style.setProperty('--mouse-y', `${y}%`);
+      });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, []);
   return (
     <>
+      <div className="bg-noise" />
       <SeoHead />
       <ScrollToTop />
       <Navbar />
@@ -49,6 +67,7 @@ function AppInner() {
       </Routes>
       <Footer />
       <AnnouncementPopup />
+      <GlobalAudioPlayer />
     </>
   );
 }
@@ -58,7 +77,6 @@ export default function App() {
     <NotificationProvider>
       <SettingsProvider>
         <AuthProvider>
-          <DevToolsBlocker />
           <BrowserRouter>
             <AppInner />
           </BrowserRouter>

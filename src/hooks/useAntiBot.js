@@ -82,16 +82,18 @@ export function useAntiBot() {
       window._Selenium_IDE_Recorder
     ) signals.push('selenium');
 
-    // 5. Chrome headless — missing standard APIs
-    const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
-    if (isChrome && !window.chrome) signals.push('headless-chrome');
+    // 5. Chrome headless — missing standard APIs on desktop Chrome only
+    const isChromeDesktop = /Chrome/.test(navigator.userAgent) &&
+      /Google Inc/.test(navigator.vendor) &&
+      !/HeadlessChrome/.test(navigator.userAgent) &&
+      !/Edg|Edge|OPR|Opera|SamsungBrowser|CriOS|Chromium/i.test(navigator.userAgent);
+    if (isChromeDesktop && !window.chrome) signals.push('headless-chrome');
 
-    // 6. Zero plugins usually = headless
+    // 6. Zero plugins usually = headless on desktop Chrome only
     if (
-      isChrome &&
+      isChromeDesktop &&
       navigator.plugins &&
-      navigator.plugins.length === 0 &&
-      !navigator.userAgent.includes('Edg')
+      navigator.plugins.length === 0
     ) signals.push('no-plugins');
 
     // 7. Missing language
@@ -121,17 +123,27 @@ export function useAntiBot() {
     // 10. Screen resolution anomalies (headless often 0x0 or weird values)
     if (screen.width === 0 || screen.height === 0) signals.push('zero-screen');
 
-    // If 2+ signals — almost certainly a bot
-    if (signals.length >= 2) {
-      console.warn('[YAMATO] Bot/automation signals detected:', signals);
+    const strongSignals = [
+      'webdriver', 'phantomjs', 'nightmare', 'selenium',
+      'bot-ua', 'automation-props', 'headless-chrome',
+    ];
+    const strongCount = signals.filter((signal) => strongSignals.includes(signal)).length;
+    const totalCount = signals.length;
+
+    const shouldBlock =
+      strongCount >= 2 ||
+      (strongCount >= 1 && totalCount >= 3) ||
+      (signals.includes('webdriver') && totalCount >= 2);
+
+    if (shouldBlock) {
+      console.warn('[IMMORTAL] Bot/automation signals detected:', signals);
       document.body.innerHTML = buildBotScreen();
       document.body.style.overflow = 'hidden';
       return;
     }
 
-    // Soft warn for single signal (could be false positive)
-    if (signals.length === 1) {
-      console.warn('[YAMATO] Suspicious signal:', signals[0]);
+    if (signals.length > 0) {
+      console.warn('[IMMORTAL] Suspicious signal(s):', signals);
     }
   }, []);
 }

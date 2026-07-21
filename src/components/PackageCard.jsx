@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Star, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { forceHttps } from '../utils/security';
 
 export default function PackageCard({ pkg, index = 0 }) {
   return (
@@ -13,7 +14,7 @@ export default function PackageCard({ pkg, index = 0 }) {
       <Link to={`/packages/${pkg.slug || pkg.id}`} className="card card--package" style={{ display: 'block', textDecoration: 'none' }}>
         <div className="card__image-wrap">
           <img
-            src={pkg.thumbnail || `https://picsum.photos/seed/pkg${pkg.id}/600/400`}
+            src={forceHttps(pkg.thumbnail) || `https://picsum.photos/seed/pkg${pkg.id}/600/400`}
             alt={pkg.title}
             className="card__image"
             loading="lazy"

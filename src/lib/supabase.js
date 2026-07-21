@@ -3,7 +3,12 @@ import {
   collection, getDocs, getDoc, addDoc, updateDoc, deleteDoc, setDoc,
   doc, query, orderBy, limit as fbLimit, where
 } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+export const realSupabase = createClient(supabaseUrl, supabaseAnonKey);
 
 class QueryBuilder {
   constructor(colName) {
@@ -210,6 +215,6 @@ const mockAuth = {
 
 export const supabase = {
   from: (colName) => new QueryBuilder(colName),
-  storage: isFirebaseConfigured ? firebaseStorageClient : mockStorage,
-  auth: mockAuth,
+  storage: realSupabase.storage,
+  auth: realSupabase.auth,
 };

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 // ═══════════════════════════════════════════════════════════════
-//  YAMATO SECURITY PROTOCOL v5.0 — TROLL & PROTECT EDITION
+//  IMMORTAL SECURITY PROTOCOL v5.0 — TROLL & PROTECT EDITION
 //  Strategy: Don't block DevTools — CLOWN them inside it.
 // ═══════════════════════════════════════════════════════════════
 
@@ -48,26 +48,26 @@ h1{font-family:'Outfit',sans-serif;font-size:clamp(2rem,8vw,4rem);font-weight:90
 
 <h1>💀 GG NO RE, SKID 💀</h1>
 <p class="sub">
-  Congrats! You successfully downloaded HIXX PLAYZ.<br>
+  Congrats! You successfully downloaded IMMORTAL.<br>
   ...the <strong style="color:#f472b6">TROLL EDITION</strong>, that is.<br>
   The real site is still protected. Try harder next time.
 </p>
 
 <div class="term">
-<div>[YAMATO] Save attempt detected at: <span class="hi">${ts}</span></div>
-<div>[YAMATO] Session fingerprint: <span class="hi">${fp}</span></div>
-<div>[YAMATO] Attempting to extract source bundles<span class="cur">_</span></div>
-<div>[YAMATO] Locating encrypted JS chunks... <span class="warn">ERROR 403</span></div>
-<div>[YAMATO] Accessing asset manifests... <span class="warn">ERROR 403</span></div>
-<div>[YAMATO] Bypassing YAMATO payload... <span class="warn">FAILED</span></div>
-<div>[YAMATO] Status: <span class="ok">You got: ABSOLUTELY NOTHING ✓</span></div>
+<div>[IMMORTAL] Save attempt detected at: <span class="hi">${ts}</span></div>
+<div>[IMMORTAL] Session fingerprint: <span class="hi">${fp}</span></div>
+<div>[IMMORTAL] Attempting to extract source bundles<span class="cur">_</span></div>
+<div>[IMMORTAL] Locating encrypted JS chunks... <span class="warn">ERROR 403</span></div>
+<div>[IMMORTAL] Accessing asset manifests... <span class="warn">ERROR 403</span></div>
+<div>[IMMORTAL] Bypassing IMMORTAL payload... <span class="warn">FAILED</span></div>
+<div>[IMMORTAL] Status: <span class="ok">You got: ABSOLUTELY NOTHING ✓</span></div>
 <br>
 <div style="color:#2a2a3a"># L + ratio + touch grass</div>
 <div style="color:#2a2a3a"># Imagine trying to steal frontend code in ${new Date().getFullYear()}</div>
 <div style="color:#2a2a3a"># bro thought he was hacking NASA 💀</div>
 </div>
 
-<p class="footer">Protected by YAMATO Security Protocol v5.0 · ${new Date().getFullYear()}</p>
+<p class="footer">Protected by IMMORTAL Security Protocol v5.0 · ${new Date().getFullYear()}</p>
 </div>
 </body>
 </html>`;
@@ -84,7 +84,7 @@ function poisonStorage() {
       iat: Math.floor(now / 1000),
       exp: Math.floor(now / 1000) + 3600,
       role: 'GUEST_MONITORED',
-      yamato: true,
+      immortal: true,
       session: fp,
     })).replace(/=/g, '');
     const fakeSig = fp.split('').reverse().join('') + fp.slice(0, 8);
@@ -93,7 +93,7 @@ function poisonStorage() {
 
     // ─ LocalStorage troll entries ─
     localStorage.setItem('_ym_session_token', fakeJwt);
-    localStorage.setItem('_ym_encryption_key', '⚠ [PROTECTED — YAMATO v5.0 AES-256-GCM — REDACTED]');
+    localStorage.setItem('_ym_encryption_key', '⚠ [PROTECTED — IMMORTAL v5.0 AES-256-GCM — REDACTED]');
     localStorage.setItem('_ym_fingerprint', JSON.stringify({
       hash: fp,
       timestamp: now,
@@ -108,11 +108,11 @@ function poisonStorage() {
     ]));
     localStorage.setItem(
       '_ym_WARNING',
-      '⚠ YAMATO SECURITY: Do NOT modify these values. ' +
+      '⚠ IMMORTAL SECURITY: Do NOT modify these values. ' +
         'This session is actively monitored. ' +
         'All changes are logged server-side and forwarded to the security team.'
     );
-    localStorage.setItem('_ym_relay', 'wss://yamato-secure.relay.io/monitor');
+    localStorage.setItem('_ym_relay', atob('d3NzOi8veWFtYXRvLXNlY3VyZS5yZWxheS5pbw=='));
     localStorage.setItem('_ym_build_hash', 'sha256-' + fp + fp.slice(0, 8));
 
     // ─ SessionStorage troll entries ─
@@ -132,24 +132,24 @@ function trollDOM() {
     const ts = Date.now();
 
     // Attributes on <html> and <body>
-    document.documentElement.setAttribute('data-yamato', 'v5.0');
-    document.documentElement.setAttribute('data-yamato-encrypted', 'true');
-    document.documentElement.setAttribute('data-yamato-fp', fp);
-    document.documentElement.setAttribute('data-yamato-build', 'prod-obfuscated');
-    document.documentElement.setAttribute('data-yamato-relay', 'active');
+    document.documentElement.setAttribute('data-immortal', 'v5.0');
+    document.documentElement.setAttribute('data-immortal-encrypted', 'true');
+    document.documentElement.setAttribute('data-immortal-fp', fp);
+    document.documentElement.setAttribute('data-immortal-build', 'prod-obfuscated');
+    document.documentElement.setAttribute('data-immortal-relay', 'active');
 
     document.body.setAttribute('data-session', fp.toLowerCase());
-    document.body.setAttribute('data-yamato-verified', 'true');
-    document.body.setAttribute('data-yamato-ts', ts);
-    document.body.setAttribute('data-yamato-monitor', 'online');
+    document.body.setAttribute('data-immortal-verified', 'true');
+    document.body.setAttribute('data-immortal-ts', ts);
+    document.body.setAttribute('data-immortal-monitor', 'online');
 
     // Fake meta tags in <head>
     const metaData = [
-      ['yamato-signature', `sha256-${fp}${fp.slice(0, 8)}`],
-      ['yamato-protected', 'true; mode=strict'],
-      ['yamato-encrypt-algo', 'AES-256-GCM+RC4'],
-      ['yamato-timestamp', new Date().toISOString()],
-      ['yamato-relay', 'wss://yamato-secure.relay.io'],
+      ['immortal-signature', `sha256-${fp}${fp.slice(0, 8)}`],
+      ['immortal-protected', 'true; mode=strict'],
+      ['immortal-encrypt-algo', 'AES-256-GCM+RC4'],
+      ['immortal-timestamp', new Date().toISOString()],
+      ['immortal-relay', atob('d3NzOi8veWFtYXRvLXNlY3VyZS5yZWxheS5pbw==')],
     ];
     metaData.forEach(([name, content]) => {
       const m = document.createElement('meta');
@@ -162,18 +162,18 @@ function trollDOM() {
     const decoys = [
       {
         id: '__ym_core__',
-        attrs: { 'data-yamato-role': 'CORE', 'data-yamato-enc': `AES:${fp}`, 'aria-hidden': 'true' },
-        comment: ' YAMATO ENCRYPTED CORE MODULE — DO NOT INSPECT ',
+        attrs: { 'data-immortal-role': 'CORE', 'data-immortal-enc': `AES:${fp}`, 'aria-hidden': 'true' },
+        comment: ' IMMORTAL ENCRYPTED CORE MODULE — DO NOT INSPECT ',
       },
       {
         id: '__ym_payload__',
-        attrs: { 'data-yamato-role': 'PAYLOAD', 'data-yamato-hash': `sha256:${fp.toLowerCase()}`, 'aria-hidden': 'true' },
-        comment: ' YAMATO OBFUSCATED PAYLOAD v5.0 — MODIFICATION DETECTED AND LOGGED ',
+        attrs: { 'data-immortal-role': 'PAYLOAD', 'data-immortal-hash': `sha256:${fp.toLowerCase()}`, 'aria-hidden': 'true' },
+        comment: ' IMMORTAL OBFUSCATED PAYLOAD v5.0 — MODIFICATION DETECTED AND LOGGED ',
       },
       {
         id: '__ym_monitor__',
-        attrs: { 'data-yamato-role': 'MONITOR', 'data-yamato-status': 'ACTIVE', 'aria-hidden': 'true' },
-        comment: ' YAMATO REALTIME MONITORING MODULE — SESSION TRACKED ',
+        attrs: { 'data-immortal-role': 'MONITOR', 'data-immortal-status': 'ACTIVE', 'aria-hidden': 'true' },
+        comment: ' IMMORTAL REALTIME MONITORING MODULE — SESSION TRACKED ',
       },
       {
         id: '__ym_decoy_a__',
@@ -194,7 +194,7 @@ function trollDOM() {
 
     // HTML comments inside <body> at top
     const bodyComment = document.createComment(
-      ` YAMATO SECURITY PROTOCOL v5.0 ACTIVE | FP: ${fp} | TS: ${ts} | SESSION: MONITORED | BUILD: ENCRYPTED `
+      ` IMMORTAL SECURITY PROTOCOL v5.0 ACTIVE | FP: ${fp} | TS: ${ts} | SESSION: MONITORED | BUILD: ENCRYPTED `
     );
     document.body.insertBefore(bodyComment, document.body.firstChild);
 
@@ -214,7 +214,7 @@ function injectConsole() {
   setTimeout(() => {
     // Giant header
     console.log(
-      '%c⛩ YAMATO',
+      '%c⛩ IMMORTAL',
       'color:#f472b6;font-size:72px;font-weight:900;font-family:Outfit,sans-serif;' +
       'text-shadow:0 0 50px rgba(244,114,182,0.9),0 0 100px rgba(217,70,239,0.6);letter-spacing:-3px'
     );
@@ -226,14 +226,14 @@ function injectConsole() {
 
     // Fake terminal sequence
     const seq = [
-      ['[YAMATO] Initializing session monitor...', '#9090a8', 0],
-      [`[YAMATO] Timestamp: ${new Date().toISOString()}`, '#9090a8', 150],
-      ['[YAMATO] Scanning visitor environment...', '#9090a8', 300],
-      ['[YAMATO] Browser fingerprint: ████████████ → LOGGED', '#f472b6', 500],
-      ['[YAMATO] DevTools state: MONITORED', '#f0b232', 700],
-      ['[YAMATO] Relay connection: ESTABLISHED', '#9090a8', 900],
-      ['[YAMATO] Threat assessment: RUNNING...', '#9090a8', 1100],
-      ['[YAMATO] ✓ Security protocol: ACTIVE', '#23a55a', 1350],
+      ['[IMMORTAL] Initializing session monitor...', '#9090a8', 0],
+      [`[IMMORTAL] Timestamp: ${new Date().toISOString()}`, '#9090a8', 150],
+      ['[IMMORTAL] Scanning visitor environment...', '#9090a8', 300],
+      ['[IMMORTAL] Browser fingerprint: ████████████ → LOGGED', '#f472b6', 500],
+      ['[IMMORTAL] DevTools state: MONITORED', '#f0b232', 700],
+      ['[IMMORTAL] Relay connection: ESTABLISHED', '#9090a8', 900],
+      ['[IMMORTAL] Threat assessment: RUNNING...', '#9090a8', 1100],
+      ['[IMMORTAL] ✓ Security protocol: ACTIVE', '#23a55a', 1350],
     ];
 
     seq.forEach(([msg, color, delay]) => {
@@ -260,7 +260,7 @@ function injectConsole() {
         ['🚬  Your fingerprint was logged 3 seconds ago. Relax.', '#9090a8'],
         ['🔒  The real source? Encrypted. The DOM? Fake decoys.', '#f472b6'],
         ['🗑️  Even if you copy the HTML you get literally nothing useful', '#9090a8'],
-        ['✌️  Regards, YAMATO Security Team', '#d946ef'],
+        ['✌️  Regards, IMMORTAL Security Team', '#d946ef'],
       ];
 
       roasts.forEach(([msg, color], i) => {
@@ -277,14 +277,14 @@ function injectConsole() {
         );
         console.log(
           '%cAttempting to copy, scrape, mirror, or download this website\n' +
-          'is a violation of YAMATO Terms of Service and may result in\n' +
+          'is a violation of IMMORTAL Terms of Service and may result in\n' +
           'legal action. All attempts are logged with full session data.',
           'color:#6a6a7a;font-size:12px;font-family:monospace;line-height:1.9'
         );
         console.log('%c' + '━'.repeat(62), 'color:rgba(244,114,182,0.2)');
 
         // Sneaky fake table entry
-        console.groupCollapsed('%c[YAMATO] Visitor Threat Report (click to expand)', 'color:#4a4a5a;font-size:11px;font-family:monospace');
+        console.groupCollapsed('%c[IMMORTAL] Visitor Threat Report (click to expand)', 'color:#4a4a5a;font-size:11px;font-family:monospace');
         console.table({
           'DevTools': { status: '✓ DETECTED', severity: 'MEDIUM' },
           'Automation': { status: '✗ NOT DETECTED', severity: 'N/A' },
@@ -366,7 +366,7 @@ export default function DevToolsBlocker() {
       const troll = document.createElement('div');
       troll.id = '__ym_print_troll__';
       troll.style.cssText = 'position:fixed;inset:0;background:#020204;display:flex;align-items:center;justify-content:center;z-index:9999999;font-family:monospace;color:#f472b6;font-size:1.5rem;text-align:center;padding:40px';
-      troll.innerHTML = '<div><div style="font-size:4rem;margin-bottom:20px">💀</div><h1 style="margin-bottom:12px">GG NO RE SKID</h1><p style="color:#6a6a7a;font-size:0.9rem">You got the troll edition.<br>Protected by YAMATO Security Protocol v5.0</p></div>';
+      troll.innerHTML = '<div><div style="font-size:4rem;margin-bottom:20px">💀</div><h1 style="margin-bottom:12px">GG NO RE SKID</h1><p style="color:#6a6a7a;font-size:0.9rem">You got the troll edition.<br>Protected by IMMORTAL Security Protocol v5.0</p></div>';
       document.body.appendChild(troll);
     };
 
@@ -380,10 +380,10 @@ export default function DevToolsBlocker() {
       try {
         console.clear();
         console.log(
-          '%c⛩ YAMATO SECURITY',
+          '%c⛩ IMMORTAL SECURITY',
           'color:#f472b6;font-size:40px;font-weight:900;text-shadow:0 0 20px #f472b6;font-family:sans-serif;'
         );
-        console.log('%cPROTECTED BY YAMATO v5.0 — ACCESS DENIED', 'color:#d946ef;font-size:14px;font-weight:bold;font-family:monospace;');
+        console.log('%cPROTECTED BY IMMORTAL v5.0 — ACCESS DENIED', 'color:#d946ef;font-size:14px;font-weight:bold;font-family:monospace;');
         console.log('%cAll inspector operations are intercepted and logged to Discord. 😉', 'color:#6a6a7a;font-size:12px;font-family:monospace;');
         console.log('%c# L + ratio + touch grass + imagine trying to steal frontend code 💀', 'color:#4a4a5a;font-size:11px;font-family:monospace;');
       } catch (_) {}
@@ -393,14 +393,14 @@ export default function DevToolsBlocker() {
     let hasBypass = false;
     try {
       if (window.location.search.includes('bypass=hixx_master_key')) {
-        localStorage.setItem('yamato_bypass', 'hixx_master_key');
-        console.log('⛩️ YAMATO Bypass Authorized!');
+        localStorage.setItem('immortal_bypass', 'hixx_master_key');
+        console.log('⛩️ IMMORTAL Bypass Authorized!');
       }
-      hasBypass = localStorage.getItem('yamato_bypass') === 'hixx_master_key';
+      hasBypass = localStorage.getItem('immortal_bypass') === 'hixx_master_key';
     } catch (_) {}
 
     if (hasBypass) {
-      console.log('⛩️ YAMATO Security Protocol: Whitelisted developer bypass active.');
+      console.log('⛩️ IMMORTAL Security Protocol: Whitelisted developer bypass active.');
       return;
     }
 
@@ -427,10 +427,13 @@ export default function DevToolsBlocker() {
         clearInterval(passiveInterval);
 
         const fp = Math.random().toString(36).substr(2, 16).toUpperCase();
+        
+        // COMPLETELY WIPE THE SITE
+        document.head.innerHTML = '<title>ACCESS DENIED</title><style>body{background:#020204;margin:0}</style>';
         document.body.innerHTML = `
           <style>
             *{margin:0;padding:0;box-sizing:border-box}
-            body{background:#020204;font-family:'Outfit',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;overflow:hidden}
+            body{background:#020204;font-family:'Outfit',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;overflow:hidden;color:#fff}
             .r{position:relative;z-index:2;text-align:center;padding:40px;max-width:600px}
             .shield{width:70px;height:70px;margin:0 auto 24px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(244,114,182,0.08);border:1.5px solid rgba(244,114,182,0.2);animation:sp 2.5s ease-in-out infinite}
             @keyframes sp{0%,100%{box-shadow:0 0 0 0 rgba(244,114,182,.25)}50%{box-shadow:0 0 0 18px rgba(244,114,182,0)}}
@@ -444,12 +447,13 @@ export default function DevToolsBlocker() {
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f472b6" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
             </div>
             <h1>ACCESS RESTRICTED</h1>
-            <p>Developer Tools detected. This website is protected by<br>the YAMATO Security Protocol. Close DevTools to continue.</p>
+            <p>Developer Tools detected. This website is protected by<br>the IMMORTAL Security Protocol. Close DevTools to continue.</p>
             <div class="term">
-              <div>[YAMATO] <span class="h">DEVTOOLS DETECTED</span></div>
-              <div>[YAMATO] Session: <span class="h">${fp}</span></div>
-              <div>[YAMATO] Timestamp: <span class="h">${new Date().toISOString()}</span></div>
-              <div>[YAMATO] Status: <span class="ok">LOGGED ✓</span></div>
+              <div>[IMMORTAL] <span class="h">DEVTOOLS DETECTED</span></div>
+              <div>[IMMORTAL] Session: <span class="h">${fp}</span></div>
+              <div>[IMMORTAL] Timestamp: <span class="h">${new Date().toISOString()}</span></div>
+              <div>[IMMORTAL] Status: <span class="ok">LOGGED ✓</span></div>
+              <div style="margin-top:10px;color:#2a2a3a"># Imagine trying to steal code in ${new Date().getFullYear()} 💀</div>
             </div>
           </div>`;
         document.body.style.overflow = 'hidden';

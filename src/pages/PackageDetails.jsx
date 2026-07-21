@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { motion } from 'framer-motion';
 import { Download, Star, ArrowLeft } from 'lucide-react';
 import PremiumLoader from '../components/PremiumLoader';
+import { forceHttps } from '../utils/security';
 
 export default function PackageDetails() {
   const { slug } = useParams();
@@ -57,16 +58,16 @@ export default function PackageDetails() {
           {pkg.download_url && pkg.download_url.toLowerCase().endsWith('.mp4') ? (
             <div style={{ borderRadius: 'var(--radius-lg)', overflow: 'hidden', marginBottom: '32px', border: '1px solid var(--border-glass)', background: '#000' }}>
                <video 
-                src={pkg.download_url} 
+                src={forceHttps(pkg.download_url)} 
                 controls 
                 playsInline
                 style={{ width: '100%', display: 'block', maxHeight: '70vh' }} 
-                poster={pkg.thumbnail}
+                poster={forceHttps(pkg.thumbnail)}
               />
             </div>
           ) : (
             <img 
-              src={pkg.thumbnail || `https://picsum.photos/seed/pkg${pkg.id}/1200/600`} 
+              src={forceHttps(pkg.thumbnail) || `https://picsum.photos/seed/pkg${pkg.id}/1200/600`} 
               alt={pkg.title} 
               className="details__image"
             />
@@ -85,12 +86,18 @@ export default function PackageDetails() {
             
             {pkg.download_url && (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', marginTop: '24px' }}>
-                <a href={pkg.download_url} target="_blank" rel="noreferrer" className="btn btn--primary btn--lg">
+                <a 
+                  href={forceHttps(pkg.download_url) + (pkg.download_url.includes('?') ? '&' : '?') + 'download='} 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="btn btn--primary btn--lg"
+                  download={pkg.download_url.split('/').pop()}
+                >
                   <Download size={20} /> Download Package
                 </a>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {pkg.download_url.includes('supabase') 
-                    ? pkg.download_url.split('/').pop().split('-').slice(0, -1).join('-') || 'Package File'
+                    ? pkg.download_url.split('/').pop() || 'Package File'
                     : 'External Download'}
                 </span>
               </div>
