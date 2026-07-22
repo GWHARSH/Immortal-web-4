@@ -1,84 +1,80 @@
 import { useState, useEffect, useRef } from 'react';
-import { Volume2, VolumeX, Music } from 'lucide-react';
+import { Volume2, VolumeX } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 
 export default function GlobalAudioPlayer() {
   const { settings } = useSettings();
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.5);
-  const [audioSource, setAudioSource] = useState('/bg-music.mp3');
   const audioRef = useRef(null);
 
-  // Update audio source when settings change
-  useEffect(() => {
-    const dbUrl = settings?.bg_music_url;
-    if (dbUrl && dbUrl.startsWith('http') && !dbUrl.includes('idb://') && !dbUrl.includes('firestore_media://')) {
-      setAudioSource(dbUrl);
-    } else {
-      setAudioSource('/bg-music.mp3');
-    }
-  }, [settings?.bg_music_url]);
-
+  // Sync volume
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume;
     }
   }, [volume]);
 
-  const handleAudioError = () => {
-    console.warn('[AudioPlayer] Audio playback warning or source change, using fallback');
-    if (audioSource !== '/bg-music.mp3') {
-      setAudioSource('/bg-music.mp3');
+  // Determine active audio URL
+  const getAudioUrl = () => {
+    const dbUrl = settings?.bg_music_url;
+    if (dbUrl && typeof dbUrl === 'string' && dbUrl.startsWith('http') && !dbUrl.includes('idb://') && !dbUrl.includes('firestore_media://')) {
+      return dbUrl;
     }
+    return '/bg-music.mp3';
   };
 
-  const toggleMusic = async () => {
-    if (!audioRef.current) return;
+  const audioUrl = getAudioUrl();
 
-    if (!isPlaying) {
+  const toggleMusic = async (e) => {
+    if (e) {
+      e.stopPropagation();
+    }
+
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (isPlaying) {
+      audio.pause();
+      setIsPlaying(false);
+    } else {
       try {
-        await audioRef.current.play();
+        audio.volume = volume;
+        await audio.play();
         setIsPlaying(true);
       } catch (err) {
-        console.warn('[AudioPlayer] Playback blocked or failed:', err);
-        if (audioSource !== '/bg-music.mp3') {
-          setAudioSource('/bg-music.mp3');
-          setTimeout(async () => {
-            try {
-              if (audioRef.current) {
-                await audioRef.current.play();
-                setIsPlaying(true);
-              }
-            } catch (fallbackErr) {
-              console.error('[AudioPlayer] Fallback play error:', fallbackErr);
-            }
-          }, 100);
+        console.warn('[AudioPlayer] Play attempt failed:', err);
+        try {
+          audio.src = '/bg-music.mp3';
+          audio.load();
+          audio.volume = volume;
+          await audio.play();
+          setIsPlaying(true);
+        } catch (err2) {
+          console.error('[AudioPlayer] Fallback audio play failed:', err2);
         }
       }
-    } else {
-      audioRef.current.pause();
-      setIsPlaying(false);
     }
   };
 
   return (
-    <div className="music-toggle" style={{ zIndex: 9999 }}>
+    <div className="music-toggle" style={{ zIndex: 9999, position: 'fixed', bottom: '32px', right: '32px' }}>
       <audio
-        key={audioSource}
         ref={audioRef}
-        src={audioSource}
+        src={audioUrl}
         loop
         preload="auto"
-        onError={handleAudioError}
       />
       <div className="music-toggle__controls">
         <button
+          type="button"
           className={`music-toggle__btn ${isPlaying ? 'music-toggle__btn--playing' : ''}`}
           onClick={toggleMusic}
           aria-label="Toggle Music"
           title={isPlaying ? 'Pause Background Music' : 'Play Background Music'}
+          style={{ cursor: 'pointer', border: 'none', background: 'transparent', padding: '4px' }}
         >
-          {isPlaying ? <Volume2 size={18} color="#00F0FF" /> : <VolumeX size={18} />}
+          {isPlaying ? <Volume2 size={20} color="#00F0FF" /> : <VolumeX size={20} color="#94A3B8" />}
         </button>
         <div className="music-toggle__slider-wrap">
           <input
