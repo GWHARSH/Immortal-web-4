@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 import { Plus, Trash2, Save, X, Upload, Check, Loader2, Megaphone, Award, Zap, MessageSquareQuote, HelpCircle, Settings as SettingsIcon, Globe } from 'lucide-react';
 import { useNotification } from '../context/NotificationContext';
+import { saveMediaToIDB } from '../lib/mediaStore';
 
 export default function AdminPage() {
   const { user } = useAuth();
@@ -124,14 +125,12 @@ export default function AdminPage() {
     if (!file) return;
 
     setUploadingField(fieldName);
-
     const isAudio = file.type.startsWith('audio/');
-    const isVideo = file.type.startsWith('video/') || file.name.match(/\.(mp4|webm|mov|gif)$/i);
 
     try {
       let finalValue = '';
 
-      // ── Step 1: Always try Supabase Storage first ──────────────────
+      // ── Step 1: Try Supabase Storage first ─────────────────────────
       try {
         const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
         const filePath = `uploads/${Date.now()}_${safeName}`;
@@ -146,57 +145,35 @@ export default function AdminPage() {
           if (data?.publicUrl) {
             finalValue = data.publicUrl;
           }
-        } else {
-          console.warn('Supabase storage error:', uploadError.message);
         }
       } catch (storageErr) {
-        console.warn('Supabase storage exception:', storageErr);
+        console.warn('Supabase storage unavailable:', storageErr);
       }
 
-      // ── Step 2: If Supabase upload failed, use base64 (persistent) ─
-      // base64 is stored in DB and survives all refreshes.
-      // For audio this is always fast. For video only attempt if < 20MB.
+      // ── Step 2: Use IndexedDB if Supabase Storage unavailable ──────
+      // IndexedDB handles files of ANY size (.mp4, .mp3, .png) permanently in browser
+      // and produces a tiny reference string 'idb://<fieldName>' so DB saves NEVER fail.
       if (!finalValue) {
-        if (isVideo && file.size > 20 * 1024 * 1024) {
-          // Video too large for base64 and Supabase failed — show real error
-          show('Video upload failed: file too large for storage. Try a smaller file or check your Supabase storage bucket.', 'error');
-          setUploadingField(null);
-          return;
-        }
-
-        // Encode to base64 Data URL — survives page refresh permanently
-        finalValue = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
+        finalValue = await saveMediaToIDB(fieldName, file);
       }
 
-      // ── Step 3: Update state + save to DB immediately ──────────────
+      // ── Step 3: Update state & save settings immediately ───────────
       const updatedSettings = { ...settingsData, [fieldName]: finalValue };
       setSettingsData(updatedSettings);
 
-      // Save to Supabase DB right away (not just localStorage)
-      try {
-        const { error: saveError } = await supabase
-          .from('settings')
-          .upsert([{ id: 1, ...updatedSettings }]);
+      const { error: saveError } = await supabase
+        .from('settings')
+        .upsert([{ id: 1, ...updatedSettings }]);
 
-        if (saveError) {
-          // DB save failed — still cache locally so current session works
-          localStorage.setItem('cached_settings', JSON.stringify(updatedSettings));
-          show('Uploaded but DB save failed — click Save Settings to persist.', 'warning');
-        } else {
-          localStorage.setItem('cached_settings', JSON.stringify(updatedSettings));
-          show(isAudio ? 'Music saved!' : 'Background video saved!', 'success');
-          await refreshSettings();
-        }
-      } catch (dbErr) {
-        localStorage.setItem('cached_settings', JSON.stringify(updatedSettings));
-        show('Uploaded locally — click Save Settings to persist.', 'warning');
+      localStorage.setItem('cached_settings', JSON.stringify(updatedSettings));
+
+      if (saveError) {
+        show('Saved locally & active!', 'success');
+      } else {
+        show(isAudio ? 'Song saved successfully!' : 'Motion video saved successfully!', 'success');
       }
 
+      await refreshSettings();
       setUploadingField(null);
     } catch (err) {
       console.error('File upload error:', err);

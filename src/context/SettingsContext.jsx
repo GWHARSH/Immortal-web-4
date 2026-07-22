@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
+import { resolveSettingsMedia } from '../lib/mediaStore';
 
 const SettingsContext = createContext({
   settings: null,
@@ -10,21 +11,33 @@ const SettingsContext = createContext({
 export const useSettings = () => useContext(SettingsContext);
 
 export function SettingsProvider({ children }) {
-  const [settings, setSettings] = useState(() => {
+  const [settings, setSettings] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const applySettings = useCallback(async (rawSettings) => {
+    if (!rawSettings) return;
     try {
-      const cached = localStorage.getItem('cached_settings');
-      return cached ? JSON.parse(cached) : null;
+      const resolved = await resolveSettingsMedia(rawSettings);
+      setSettings(resolved);
     } catch {
-      return null;
+      setSettings(rawSettings);
     }
-  });
-  const [loading, setLoading] = useState(!settings);
+  }, []);
 
   const fetchSettings = useCallback(async () => {
     try {
+      // Load initial cache from localStorage first for instant rendering
+      try {
+        const cached = localStorage.getItem('cached_settings');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          await applySettings(parsed);
+        }
+      } catch {}
+
       const { data, error } = await supabase.from('settings').select('*').single();
       if (data && !error) {
-        setSettings(data);
+        await applySettings(data);
         localStorage.setItem('cached_settings', JSON.stringify(data));
       }
     } catch (err) {
@@ -32,7 +45,7 @@ export function SettingsProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [applySettings]);
 
   useEffect(() => {
     fetchSettings();
