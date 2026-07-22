@@ -70,26 +70,28 @@ const DEFAULT_MOTION_VIDEO = 'https://assets.mixkit.co/videos/preview/mixkit-abs
 function StyleApex({ socials, onSocialClick, scrollDown, heroContent, settings }) {
   const isVideoMode = (settings?.motion_bg_type || 'video') === 'video';
   const [videoSrc, setVideoSrc] = useState(() => {
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
     const dbUrl = settings?.motion_bg_url;
     if (dbUrl && dbUrl.startsWith('http') && !dbUrl.includes('idb://') && !dbUrl.includes('firestore_media://')) {
       return forceHttps(dbUrl);
     }
-    return '/bg-video.mp4';
+    return isMobile ? '/bg-video-mobile.mp4' : '/bg-video.mp4';
   });
   const bgOpacity = settings?.motion_bg_opacity ? Number(settings.motion_bg_opacity) : 0.45;
 
   useEffect(() => {
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
     const dbUrl = settings?.motion_bg_url;
     if (dbUrl && dbUrl.startsWith('http') && !dbUrl.includes('idb://') && !dbUrl.includes('firestore_media://')) {
       setVideoSrc(forceHttps(dbUrl));
     } else {
-      setVideoSrc('/bg-video.mp4');
+      setVideoSrc(isMobile ? '/bg-video-mobile.mp4' : '/bg-video.mp4');
     }
   }, [settings?.motion_bg_url]);
 
   const handleVideoError = () => {
-    console.warn('[HeroSection] Video load error, trying GitHub Raw CDN fallback');
-    if (videoSrc === '/bg-video.mp4') {
+    console.warn('[HeroSection] Video load error, trying fallback');
+    if (videoSrc.includes('/bg-video')) {
       setVideoSrc(GITHUB_RAW_VIDEO);
     } else if (videoSrc === GITHUB_RAW_VIDEO) {
       setVideoSrc(DEFAULT_MOTION_VIDEO);

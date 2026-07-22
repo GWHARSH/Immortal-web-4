@@ -68,7 +68,10 @@ export default function InteractiveCanvasParticles() {
     let dots = [];
 
     const initDots = () => {
-      const density = Math.min(Math.floor((width * height) / 13000), 85);
+      const isMobile = width <= 768;
+      const density = isMobile
+        ? Math.min(Math.floor((width * height) / 25000), 32)
+        : Math.min(Math.floor((width * height) / 13000), 85);
       dots = [];
 
       for (let i = 0; i < density; i++) {
@@ -200,8 +203,10 @@ export default function InteractiveCanvasParticles() {
           ctx.strokeStyle = '#00F0FF';
           ctx.globalAlpha = (1 - distToMouse / 150) * 0.35;
           ctx.lineWidth = 1.0;
-          ctx.shadowBlur = 8;
-          ctx.shadowColor = '#00F0FF';
+          if (width > 768) {
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = '#00F0FF';
+          }
           ctx.stroke();
         }
 
@@ -210,13 +215,13 @@ export default function InteractiveCanvasParticles() {
           const d2 = dots[j];
           const distBetween = Math.hypot(d.x - d2.x, d.y - d2.y);
 
-          if (distBetween < 135) {
+          if (distBetween < (width <= 768 ? 95 : 135)) {
             ctx.beginPath();
             ctx.moveTo(d.x, d.y);
             ctx.lineTo(d2.x, d2.y);
             ctx.strokeStyle = '#00F0FF';
-            ctx.globalAlpha = (1 - distBetween / 135) * 0.22;
-            ctx.lineWidth = 0.9;
+            ctx.globalAlpha = (1 - distBetween / (width <= 768 ? 95 : 135)) * 0.22;
+            ctx.lineWidth = 0.8;
             ctx.stroke();
           }
         }
