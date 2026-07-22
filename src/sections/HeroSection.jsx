@@ -73,20 +73,22 @@ function StyleApex({ socials, onSocialClick, scrollDown, heroContent, settings }
   const performanceTier = useDevicePerformance();
 
   const [videoSrc, setVideoSrc] = useState(() => {
+    const isDesktop = typeof window !== 'undefined' && window.innerWidth > 768;
     const dbUrl = settings?.motion_bg_url;
     if (dbUrl && dbUrl.startsWith('http') && !dbUrl.includes('idb://') && !dbUrl.includes('firestore_media://')) {
       return forceHttps(dbUrl);
     }
-    return performanceTier === 'high' ? '/bg-video.mp4' : '/bg-video-mobile.mp4';
+    return isDesktop || performanceTier === 'high' ? '/bg-video.mp4' : '/bg-video-mobile.mp4';
   });
   const bgOpacity = settings?.motion_bg_opacity ? Number(settings.motion_bg_opacity) : 0.45;
 
   useEffect(() => {
+    const isDesktop = typeof window !== 'undefined' && window.innerWidth > 768;
     const dbUrl = settings?.motion_bg_url;
     if (dbUrl && dbUrl.startsWith('http') && !dbUrl.includes('idb://') && !dbUrl.includes('firestore_media://')) {
       setVideoSrc(forceHttps(dbUrl));
     } else {
-      setVideoSrc(performanceTier === 'high' ? '/bg-video.mp4' : '/bg-video-mobile.mp4');
+      setVideoSrc(isDesktop || performanceTier === 'high' ? '/bg-video.mp4' : '/bg-video-mobile.mp4');
     }
   }, [settings?.motion_bg_url, performanceTier]);
 
